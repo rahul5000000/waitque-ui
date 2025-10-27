@@ -3,17 +3,16 @@ import { TextInput, View, Text } from "react-native";
 import LeadQuestionText from "./LeadQuestionText";
 import { useCompanyTheme } from "../../hooks/useCompanyTheme";
 
-export default function DecimalLeadQuestion({ children, isRequired = false }) {
+export default function DecimalLeadQuestion({ children, isRequired = false, value, onChange, hasValidationError }) {
   const { textInputStyle } = useCompanyTheme();
-  const [number, setNumber] = React.useState('');
   const [displayTypeError, setDisplayTypeError] = React.useState(false);
   const errorTimerRef = React.useRef(null);
 
   const handleChange = (text) => {
     // Remove any non-digit characters
-    const validDecimalPattern = /^\d*\.?\d*$/;
+    const onlyNums = text.replace(/[^0-9.]/g, '');
 
-    if(!validDecimalPattern.test(text)) {
+    if(onlyNums !== text) {
       setDisplayTypeError(true);
 
       // Clear existing timer if user keeps typing invalid input
@@ -26,11 +25,9 @@ export default function DecimalLeadQuestion({ children, isRequired = false }) {
         setDisplayTypeError(false);
         errorTimerRef.current = null;
       }, 3000);
-
-      return;
     }
 
-    setNumber(text);
+    onChange(onlyNums);
   };
 
   React.useEffect(() => {
@@ -44,13 +41,13 @@ export default function DecimalLeadQuestion({ children, isRequired = false }) {
   return (
     <View className="flex">
       <View className="flex-row">
-        <LeadQuestionText isRequired={isRequired}>{children}</LeadQuestionText>
-        {displayTypeError ? <Text className="m-2 text-red-500 animate-pulse">(enter decimal numbers only)</Text> : ""}
+        <LeadQuestionText isRequired={isRequired} hasValidationError={hasValidationError}>{children}</LeadQuestionText>
+        {displayTypeError ? <Text className="m-2 text-red-500 animate-pulse">(enter decimal numbers only)</Text> : null}
       </View>
       <TextInput
           style={textInputStyle}
           onChangeText={handleChange}
-          value={number}
+          value={value}
           keyboardType="decimal-pad"
           inputMode="decimal" // Helps on web or newer React Native versions
         />

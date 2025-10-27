@@ -30,7 +30,7 @@ export default function HomeScreen({ navigation, route }) {
             {flows.leadFlows.map((flow) => (
               <FlowWidget navigation={navigation} flow={flow}></FlowWidget>
             ))}
-            {flows.leadFlows.length % 2 == 1 ? <View className="w-36 h-32 rounded-xl items-center justify-center"></View> : "" /* Hack to left align widgets but keep container centered*/ } 
+            {flows.leadFlows.length % 2 == 1 ? <View className="w-36 h-32 rounded-xl items-center justify-center"></View> : null /* Hack to left align widgets but keep container centered*/ } 
           </View>
         </View>
 
