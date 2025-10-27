@@ -3,9 +3,8 @@ import { TextInput, View, Text } from "react-native";
 import LeadQuestionText from "./LeadQuestionText";
 import { useCompanyTheme } from "../../hooks/useCompanyTheme";
 
-export default function NumberLeadQuestion({ children, isRequired = false }) {
+export default function NumberLeadQuestion({ children, isRequired = false, value, onChange, hasValidationError }) {
   const { textInputStyle } = useCompanyTheme();
-  const [number, setNumber] = React.useState('');
   const [displayTypeError, setDisplayTypeError] = React.useState(false);
   const errorTimerRef = React.useRef(null);
 
@@ -28,7 +27,7 @@ export default function NumberLeadQuestion({ children, isRequired = false }) {
       }, 3000);
     }
 
-    setNumber(onlyNums);
+    onChange(onlyNums);
   };
 
   React.useEffect(() => {
@@ -42,13 +41,13 @@ export default function NumberLeadQuestion({ children, isRequired = false }) {
   return (
     <View className="flex">
       <View className="flex-row">
-        <LeadQuestionText isRequired={isRequired}>{children}</LeadQuestionText>
-        {displayTypeError ? <Text className="m-2 text-red-500 animate-pulse">(enter whole numbers only)</Text> : ""}
+        <LeadQuestionText isRequired={isRequired} hasValidationError={hasValidationError}>{children}</LeadQuestionText>
+        {displayTypeError ? <Text className="m-2 text-red-500 animate-pulse">(enter whole numbers only)</Text> : null}
       </View>
       <TextInput
           style={textInputStyle}
           onChangeText={handleChange}
-          value={number}
+          value={value}
           keyboardType="numeric"
           inputMode="numeric" // Helps on web or newer React Native versions
         />
