@@ -38,7 +38,7 @@ export function useCompanyTheme() {
     // Styles you can spread directly into components:
     backgroundStyle: { backgroundColor: theme.backgroundColor },
     textStyle: { color: theme.textColor },
-    textInputStyle: { borderColor: backgroundColorDarker, borderWidth: 2, padding: 12, marginBottom: 4, borderRadius: 5, flex: 1, backgroundColor: 'white' },
+    textInputStyle: { borderColor: backgroundColorDarker, borderWidth: 2, padding: 12, marginBottom: 4, borderRadius: 5, backgroundColor: 'white', color: 'black' },
     primaryButtonStyle: { backgroundColor: theme.primaryButtonColor },
     primaryButtonTextStyle: { color: primaryButtonTextColor },
     secondaryButtonStyle: { backgroundColor: theme.secondaryButtonColor },

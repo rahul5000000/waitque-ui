@@ -9,9 +9,9 @@ export default function BooleanLeadQuestion({children, isRequired = false, false
     <View className="flex">
       <LeadQuestionText isRequired={isRequired} hasValidationError={hasValidationError}>{children}</LeadQuestionText>
       <View className="flex-row">
-        {falseText ? <Text className="mr-2 mt-1 text-[12px]">{falseText}</Text> : ""}
+        {falseText ? <Text className="mr-2 mt-1 text-[12px]">{falseText}</Text> : null}
         <Switch onValueChange={toggleSwitch} value={value}></Switch>
-        {trueText ? <Text className="ml-2 mt-1 text-[12px]">{trueText}</Text> : ""}
+        {trueText ? <Text className="ml-2 mt-1 text-[12px]">{trueText}</Text> : null}
       </View>
     </View>
   )
