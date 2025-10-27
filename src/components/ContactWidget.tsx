@@ -1,9 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { TextInput, TouchableOpacity, View, Linking, Platform } from "react-native";
+import { TextInput, TouchableOpacity, View, Linking } from "react-native";
 import { useAppContext } from "../hooks/AppContext";
 import { useCompanyTheme } from "../hooks/useCompanyTheme";
 import axios from "axios";
+import Toast from 'react-native-toast-message';
 
 export default function ContactWidget() {
   const arrowIcon = "arrow-forward-outline";
@@ -11,7 +12,7 @@ export default function ContactWidget() {
   const messageMode = "message";
   const callMode = "call";
 
-  const {company} = useAppContext();
+  const {company, backendBaseUrl} = useAppContext();
   const {colors} = useCompanyTheme();
 
   const [message, setMessage] = React.useState(''); 
@@ -31,10 +32,12 @@ export default function ContactWidget() {
     if(mode === callMode) {
       Linking.openURL(`tel:${company.phoneNumber.phoneNumber}`)
     } else {
-      const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:8083' : 'http://localhost:8083';
-      axios.post(`${baseUrl}/api/public/customers/qrCode/412af2e9-3fc6-462d-a3b7-d1290e591564/messages`, {"message": message}).then((res) => {
-        console.log(res);
+      axios.post(`${backendBaseUrl}/api/public/customers/qrCode/412af2e9-3fc6-462d-a3b7-d1290e591564/messages`, {"message": message}).then((res) => {
         handleTypeMessage('');
+        Toast.show({
+          type: 'success',
+          text1: "Message sent!"
+        })
       })
     }
   }
@@ -50,7 +53,7 @@ export default function ContactWidget() {
         onSubmitEditing={handleButtonPress}
         value={message}></TextInput>
       <TouchableOpacity className="p-5 ml-4 items-center" style={{borderRadius: 30, backgroundColor: colors.primaryButtonColor}} onPress={handleButtonPress}>
-        <Ionicons name={mode === callMode ? callIcon : arrowIcon} className="text-white" size={16}></Ionicons>
+        <Ionicons name={mode === callMode ? callIcon : arrowIcon} color={'white'} size={16}></Ionicons>
       </TouchableOpacity>
     </View>
   )

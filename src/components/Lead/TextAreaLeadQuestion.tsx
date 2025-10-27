@@ -9,7 +9,7 @@ export default function TextAreaLeadQuestion({children, isRequired = false, valu
   return (
       <View className="flex">
         <LeadQuestionText isRequired={isRequired} hasValidationError={hasValidationError}>{children}</LeadQuestionText>
-        <TextInput style={textInputStyle} onChangeText={onChange} multiline numberOfLines={4} maxLength={1000} value={value}/>
+        <TextInput style={[textInputStyle, {minHeight: 100, textAlignVertical: "top"}]} onChangeText={onChange} multiline numberOfLines={4} maxLength={1000} value={value}/>
       </View>
     )
 }

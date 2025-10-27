@@ -6,12 +6,12 @@ import axios from 'axios';
 import { useAppContext } from '../hooks/AppContext';
 
 export default function LandingScreen({ navigation }) {
-  const { setCompany, setCustomer, setFlows } = useAppContext();
+  const { setCompany, setCustomer, setFlows, setBackendBaseUrl } = useAppContext();
 
   useEffect(() => {
     const fetchCustomerData = async () => {
       try {
-        const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:8083' : 'http://localhost:8083';
+        const baseUrl = Platform.OS === 'android' ? 'http://10.0.0.190:8083' : 'http://localhost:8083';
 
         const [customerResponse, companyResponse, flowsResponse] = await Promise.all([
           axios.get(`${baseUrl}/api/public/customers/qrCode/412af2e9-3fc6-462d-a3b7-d1290e591564/me`),
@@ -26,6 +26,7 @@ export default function LandingScreen({ navigation }) {
         setCustomer(customerResponse.data);
         setCompany(companyResponse.data);
         setFlows(flowsResponse.data);
+        setBackendBaseUrl(baseUrl);
 
         navigation.navigate('Home');
       } catch (error) {
