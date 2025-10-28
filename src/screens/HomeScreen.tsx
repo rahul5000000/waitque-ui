@@ -27,7 +27,7 @@ export default function HomeScreen({ navigation, route }) {
               <View style={{ flex: 1 }}>
                 <View style={{ marginTop: 24, marginBottom: 48 }}>
                   <Text className="text-2xl font-semibold" style={textStyle}>
-                    Hi {customer.firstName} {customer.lastName},
+                    Hi {customer.customerType === "RESIDENTIAL" || !customer.companyName ? `${customer.firstName} ${customer.lastName}` : customer.companyName},
                   </Text>
                   <Text className="text-2xl font-semibold mb-6" style={textStyle}>
                     {company.landingPrompt}

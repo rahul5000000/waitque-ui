@@ -12,7 +12,7 @@ export default function ContactWidget() {
   const messageMode = "message";
   const callMode = "call";
 
-  const {company, backendBaseUrl} = useAppContext();
+  const {company, backendBaseUrl, qrCode} = useAppContext();
   const {colors} = useCompanyTheme();
 
   const [message, setMessage] = React.useState(''); 
@@ -32,12 +32,12 @@ export default function ContactWidget() {
     if(mode === callMode) {
       Linking.openURL(`tel:${company.phoneNumber.phoneNumber}`)
     } else {
-      axios.post(`${backendBaseUrl}/api/public/customers/qrCode/412af2e9-3fc6-462d-a3b7-d1290e591564/messages`, {"message": message}).then((res) => {
+      axios.post(`${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/messages`, {"message": message}).then((res) => {
         handleTypeMessage('');
         Toast.show({
           type: 'success',
           text1: "Message sent!"
-        })
+        });
       })
     }
   }
