@@ -15,7 +15,7 @@ import Toast from 'react-native-toast-message';
 
 export default function LeadEntryScreen({route, navigation}) {
   const { flow } = route.params;
-  const { backendBaseUrl } = useAppContext();
+  const { backendBaseUrl, qrCode } = useAppContext();
 
   const [flowDetails, setFlowDetails] = useState(null); 
   const [loading, setLoading] = useState(true);
@@ -31,7 +31,7 @@ export default function LeadEntryScreen({route, navigation}) {
     const fetchFlowDetails = async () => {
       try {
         const [flowDetailResponse] = await Promise.all([
-          axios.get(`${backendBaseUrl}/api/public/customers/qrCode/412af2e9-3fc6-462d-a3b7-d1290e591564/company/leadFlows/${flow.id}`),
+          axios.get(`${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/company/leadFlows/${flow.id}`),
         ]);
 
         console.log('Flow Details:', flowDetailResponse.data);
@@ -115,7 +115,7 @@ export default function LeadEntryScreen({route, navigation}) {
         })
       };
 
-      axios.post(`${backendBaseUrl}/api/public/customers/qrCode/412af2e9-3fc6-462d-a3b7-d1290e591564/leads`, body).then((res) => {
+      axios.post(`${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/leads`, body).then((res) => {
         console.log(res);
         navigation.navigate('LeadConfirmation', {flowDetails});
       });

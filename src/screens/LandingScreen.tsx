@@ -6,17 +6,18 @@ import axios from 'axios';
 import { useAppContext } from '../hooks/AppContext';
 
 export default function LandingScreen({ navigation }) {
-  const { setCompany, setCustomer, setFlows, setBackendBaseUrl } = useAppContext();
+  const { setCompany, setCustomer, setFlows, setBackendBaseUrl, setQrCode } = useAppContext();
 
   useEffect(() => {
     const fetchCustomerData = async () => {
       try {
         const baseUrl = Platform.OS === 'android' ? 'http://10.0.0.190:8083' : 'http://localhost:8083';
+        const qrCode = "412af2e9-3fc6-462d-a3b7-d1290e591564";
 
         const [customerResponse, companyResponse, flowsResponse] = await Promise.all([
-          axios.get(`${baseUrl}/api/public/customers/qrCode/412af2e9-3fc6-462d-a3b7-d1290e591564/me`),
-          axios.get(`${baseUrl}/api/public/customers/qrCode/412af2e9-3fc6-462d-a3b7-d1290e591564/company`),
-          axios.get(`${baseUrl}/api/public/customers/qrCode/412af2e9-3fc6-462d-a3b7-d1290e591564/company/flows?limit=10&page=0`), // TODO: get all pages of flows
+          axios.get(`${baseUrl}/api/public/customers/qrCode/${qrCode}/me`),
+          axios.get(`${baseUrl}/api/public/customers/qrCode/${qrCode}/company`),
+          axios.get(`${baseUrl}/api/public/customers/qrCode/${qrCode}/company/flows?limit=10&page=0`), // TODO: get all pages of flows
         ]);
 
         console.log('Customer:', customerResponse.data);
@@ -27,6 +28,7 @@ export default function LandingScreen({ navigation }) {
         setCompany(companyResponse.data);
         setFlows(flowsResponse.data);
         setBackendBaseUrl(baseUrl);
+        setQrCode(qrCode);
 
         navigation.navigate('Home');
       } catch (error) {

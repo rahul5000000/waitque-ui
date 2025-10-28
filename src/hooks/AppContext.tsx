@@ -7,9 +7,10 @@ export const AppProvider = ({ children }) => {
   const [customer, setCustomer] = useState(null);
   const [flows, setFlows] = useState(null);
   const [backendBaseUrl, setBackendBaseUrl] = useState(null);
+  const [qrCode, setQrCode] = useState(null);
 
   return (
-    <AppContext.Provider value={{ company, setCompany, customer, setCustomer, flows, setFlows, backendBaseUrl, setBackendBaseUrl }}>
+    <AppContext.Provider value={{ company, setCompany, customer, setCustomer, flows, setFlows, backendBaseUrl, setBackendBaseUrl, qrCode, setQrCode }}>
       {children}
     </AppContext.Provider>
   );
