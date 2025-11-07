@@ -49,6 +49,9 @@ export function useCompanyTheme() {
     dangerButtonTextStyle: { color: dangerButtonTextColor },
     widgetBackgroundStyle: { backgroundColor: widgetBackgroundColor },
     widgetButtonTextStyle: { color: theme.primaryButtonColor },
+    questionnaireWidgetBackgroundStyle: { backgroundColor: theme.primaryButtonColor },
+    questionnaireWidgetButtonTextStyle: { color: widgetBackgroundColor },
+    cardStyle: {backgroundColor: 'white', borderColor: backgroundColorDarker, borderWidth: 1, borderRadius: 8},
 
     // Also expose raw values for flexibility:
     colors: theme,

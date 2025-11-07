@@ -1,14 +1,15 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCompanyTheme } from '../hooks/useCompanyTheme';
 import FlowWidget from '../components/FlowWidget';
 import { useAppContext } from '../hooks/AppContext';
 import ContactWidget from '../components/ContactWidget';
+import QuestionnaireResponseWidget from '../components/QuestionnaireResponseWidget';
 
 
 export default function HomeScreen({ navigation, route }) {
-  const {company, customer, flows} = useAppContext();
+  const {company, customer, flows, questionnaires} = useAppContext();
   const {backgroundStyle, textStyle} = useCompanyTheme();
 
   return (
@@ -43,7 +44,14 @@ export default function HomeScreen({ navigation, route }) {
                         flow={flow}
                       />
                     ))}
-                    {flows.leadFlows.length % 2 === 1 ? (
+                    {questionnaires.questionnaireResponses.map((questionnaireResponse) => (
+                      <QuestionnaireResponseWidget
+                        key={questionnaireResponse.id}
+                        navigation={navigation}
+                        questionnaireResponse={questionnaireResponse}
+                      />
+                    ))}
+                    {(flows.leadFlows.length + questionnaires.questionnaireResponses.length) % 2 === 1 ? (
                       <View className="w-36 h-32 rounded-xl" />
                     ) : null}
                   </View>

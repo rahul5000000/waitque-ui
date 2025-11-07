@@ -8,6 +8,8 @@ import { AppProvider } from './src/hooks/AppContext';
 import LeadEntryScreen from './src/screens/LeadEntry';
 import LeadConfirmationScreen from './src/screens/LeadConfirmationScreen';
 import Toast from 'react-native-toast-message';
+import QuestionnaireResponseDetailViewScreen from './src/screens/QuestionnaireResponseDetailViewScreen';
+import QuestionnaireResponsePageViewScreen from './src/screens/QuestionnaireResponsePageViewScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +22,8 @@ export default function App() {
           <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
           <Stack.Screen name="LeadEntry" component={LeadEntryScreen} options={{ headerShown: false }} />
           <Stack.Screen name="LeadConfirmation" component={LeadConfirmationScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="QuestionnaireResponseDetailView" component={QuestionnaireResponseDetailViewScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="QuestionnairePageView" component={QuestionnaireResponsePageViewScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
       <Toast/>
