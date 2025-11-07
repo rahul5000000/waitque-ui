@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, Alert } from 'react-native';
+import { View, Text, Alert, ScrollView } from 'react-native';
 import Header from '../components/Header';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
@@ -52,8 +52,8 @@ export default function LeadEntryScreen({route, navigation}) {
         setQuestionAnswerMap(initialAnswers);
         setQuestionValidationErrorMap(initialValidationErrors);
       } catch (error) {
-        console.error('Error fetching customer:', error);
-        Alert.alert('Error', 'Failed to load customer information.');
+        console.error('Error fetching lead flow details:', error);
+        Alert.alert('Error', 'Failed to load lead flow details.');
       } finally {
         setLoading(false);
       }
@@ -146,12 +146,13 @@ export default function LeadEntryScreen({route, navigation}) {
   }
 
   return(
-    <SafeAreaView>
-      <View className="p-8">
+    <SafeAreaView className='flex-1'>
+      <View className="p-8 flex-1">
         {loading ? <Spinner message="Loading data"></Spinner> : 
-        <View>
+        <View className='flex-1'>
           <Header icon="arrow-back-outline" iconOnPress={() => handleGoBack()}>{flowDetails.title}</Header>
-          {flowDetails.questions.map((question) => {
+          <ScrollView className='flex-1'>
+            {flowDetails.questions.map((question) => {
             switch(question.dataType) {
               case "BOOLEAN": return (<BooleanLeadQuestion key={question.id} isRequired={question.isRequired} falseText={question.falseText} trueText={question.trueText} hasValidationError={questionValidationErrorMap[question.id]} value={questionAnswerMap[question.id]} onChange={(value) => handleAnswerChange(question.id, value)}>{question.question}</BooleanLeadQuestion>);
               case "TEXT": return (<TextLeadQuestion key={question.id} isRequired={question.isRequired} hasValidationError={questionValidationErrorMap[question.id]} value={questionAnswerMap[question.id]} onChange={(value) => handleAnswerChange(question.id, value)}>{question.question}</TextLeadQuestion>)
@@ -163,6 +164,7 @@ export default function LeadEntryScreen({route, navigation}) {
           <View className="mt-4">
             <WarningButton onPress={handleSubmit}>{flowDetails.buttonText}</WarningButton>
           </View>
+          </ScrollView>
         </View>}
       </View>
     </SafeAreaView>
