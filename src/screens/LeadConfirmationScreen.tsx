@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from "../components/Header";
 import { Ionicons } from "@expo/vector-icons";
 import { useCompanyTheme } from "../hooks/useCompanyTheme";
+import Logo from "../components/Logo";
 
 export default function LandingScreen({navigation, route}) {
   const {flowDetails} = route.params;
@@ -18,6 +19,9 @@ export default function LandingScreen({navigation, route}) {
       <ScrollView className="flex-1">
         <View className="p-8">
           <Header icon="arrow-back-outline" iconOnPress={() => handleGoBack()}>{flowDetails.confirmationMessageHeader}</Header>
+          <View className="items-center mt-12">
+            <Logo size={'large'}/>
+          </View>
           {flowDetails.confirmationMessage1 ? 
           <View className="flex-row justify-center m-8 my-12">
             <Text className="text-3xl font-semibold">{flowDetails.confirmationMessage1}</Text>

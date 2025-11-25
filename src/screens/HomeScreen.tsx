@@ -6,6 +6,7 @@ import FlowWidget from '../components/FlowWidget';
 import { useAppContext } from '../hooks/AppContext';
 import ContactWidget from '../components/ContactWidget';
 import QuestionnaireResponseWidget from '../components/QuestionnaireResponseWidget';
+import Logo from '../components/Logo';
 
 
 export default function HomeScreen({ navigation, route }) {
@@ -26,13 +27,18 @@ export default function HomeScreen({ navigation, route }) {
               keyboardShouldPersistTaps="handled"
             >
               <View style={{ flex: 1 }}>
-                <View style={{ marginTop: 24, marginBottom: 48 }}>
-                  <Text className="text-2xl font-semibold" style={textStyle}>
-                    Hi {customer.customerType === "RESIDENTIAL" || !customer.companyName ? `${customer.firstName} ${customer.lastName}` : customer.companyName},
-                  </Text>
-                  <Text className="text-2xl font-semibold mb-6" style={textStyle}>
-                    {company.landingPrompt}
-                  </Text>
+                <View className='flex-row mb-10 mt-2'>
+                  <View className='flex-2 items-start justify-center'>
+                    <Text className="text-2xl font-semibold" style={textStyle}>
+                      Hi {customer.customerType === "RESIDENTIAL" || !customer.companyName ? `${customer.firstName} ${customer.lastName}` : customer.companyName},
+                    </Text>
+                    <Text className="text-2xl font-semibold" style={textStyle}>
+                      {company.landingPrompt}
+                    </Text>
+                  </View>
+                  <View className='flex-1 items-end justify-center'>
+                    <Logo/>
+                  </View>
                 </View>
 
                 <View style={{ flex: 1 }}>
