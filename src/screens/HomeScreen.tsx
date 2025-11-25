@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard, Image } from 'react-native';
+import { View, Text, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCompanyTheme } from '../hooks/useCompanyTheme';
 import FlowWidget from '../components/FlowWidget';
 import { useAppContext } from '../hooks/AppContext';
 import ContactWidget from '../components/ContactWidget';
 import QuestionnaireResponseWidget from '../components/QuestionnaireResponseWidget';
+import Logo from '../components/Logo';
 
 
 export default function HomeScreen({ navigation, route }) {
@@ -36,7 +37,7 @@ export default function HomeScreen({ navigation, route }) {
                     </Text>
                   </View>
                   <View className='flex-1 items-end justify-center'>
-                    <Image style={{width: 50, height: 50}} source={{ uri: company.logoUrl }}></Image>
+                    <Logo/>
                   </View>
                 </View>
 

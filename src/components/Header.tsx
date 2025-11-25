@@ -2,6 +2,7 @@ import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useCompanyTheme } from '../hooks/useCompanyTheme';
+import Logo from './Logo';
 
 export default function Header({children, icon = null, iconOnPress = null, logoUrl = null}) {
   const {textStyle} = useCompanyTheme();
