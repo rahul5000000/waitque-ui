@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCompanyTheme } from '../hooks/useCompanyTheme';
 import FlowWidget from '../components/FlowWidget';
@@ -26,13 +26,18 @@ export default function HomeScreen({ navigation, route }) {
               keyboardShouldPersistTaps="handled"
             >
               <View style={{ flex: 1 }}>
-                <View style={{ marginTop: 24, marginBottom: 48 }}>
-                  <Text className="text-2xl font-semibold" style={textStyle}>
-                    Hi {customer.customerType === "RESIDENTIAL" || !customer.companyName ? `${customer.firstName} ${customer.lastName}` : customer.companyName},
-                  </Text>
-                  <Text className="text-2xl font-semibold mb-6" style={textStyle}>
-                    {company.landingPrompt}
-                  </Text>
+                <View className='flex-row mb-10 mt-2'>
+                  <View className='flex-2 items-start justify-center'>
+                    <Text className="text-2xl font-semibold" style={textStyle}>
+                      Hi {customer.customerType === "RESIDENTIAL" || !customer.companyName ? `${customer.firstName} ${customer.lastName}` : customer.companyName},
+                    </Text>
+                    <Text className="text-2xl font-semibold" style={textStyle}>
+                      {company.landingPrompt}
+                    </Text>
+                  </View>
+                  <View className='flex-1 items-end justify-center'>
+                    <Image style={{width: 50, height: 50}} source={{ uri: company.logoUrl }}></Image>
+                  </View>
                 </View>
 
                 <View style={{ flex: 1 }}>

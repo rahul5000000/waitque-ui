@@ -11,8 +11,8 @@ export default function LandingScreen({ navigation }) {
   useEffect(() => {
     const fetchCustomerData = async () => {
       try {
-        const baseUrl = Platform.OS === 'android' || Platform.OS === 'ios' ? 'http://10.0.0.190:8083' : 'http://localhost:8083';
-        const qrCode = "412af2e9-3fc6-462d-a3b7-d1290e591564";
+        const baseUrl = Platform.OS === 'android' || Platform.OS === 'ios' ? 'http://10.0.0.151:8083' : 'http://localhost:8083';
+        const qrCode = "abb751db-5624-4c0a-ac05-af8291e2effa";
 
         const [customerResponse, companyResponse, flowsResponse, questionnairesResponse] = await Promise.all([
           axios.get(`${baseUrl}/api/public/customers/qrCode/${qrCode}/me`),
