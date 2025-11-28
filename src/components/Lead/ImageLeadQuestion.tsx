@@ -1,5 +1,5 @@
 import React from "react";
-import { TextInput, TouchableOpacity, View } from "react-native";
+import { Image, TextInput, TouchableOpacity, View } from "react-native";
 import LeadQuestionText from "./LeadQuestionText";
 import { useCompanyTheme } from "../../hooks/useCompanyTheme";
 import { Ionicons } from "@expo/vector-icons";
@@ -62,8 +62,6 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
       { compress: 0.9, format: ImageManipulator.SaveFormat.JPEG }
     );
 
-    console.log("Resized photo:", resized);
-
     return resized;
   }
 
@@ -89,8 +87,6 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
       [{ resize: { width: 1024 } }],   // auto-calculates height
       { compress: 0.9, format: ImageManipulator.SaveFormat.JPEG }
     );
-
-    console.log("Resized photo:", resized);
 
     return resized;
   }
@@ -124,13 +120,14 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
     });
 
     console.log("Uploaded OK", fileName);
-    return fileName;
+    
+    onChange(presigned.rawPath);
   };
 
   return (
     <View className="flex">
       <LeadQuestionText isRequired={isRequired} hasValidationError={hasValidationError}>{children}</LeadQuestionText>
-      <View className="flex-row">
+      {!value ? <View className="flex-row">
         <TouchableOpacity
           className="rounded-xl items-center justify-center p-12 mr-2 flex-1" style={mutedWidgetBackgroundStyle}
           onPress={handleUpload}
@@ -143,7 +140,7 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
         >
           <Ionicons name="camera" size={30} style={mutedWidgetButtonTextStyle} />
         </TouchableOpacity>
-      </View>
+      </View> : <Image source={{uri: value}} className="h-48 rounded-xl" />}
     </View>
   )
 }
