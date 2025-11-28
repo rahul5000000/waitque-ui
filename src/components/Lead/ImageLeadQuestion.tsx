@@ -4,8 +4,28 @@ import LeadQuestionText from "./LeadQuestionText";
 import { useCompanyTheme } from "../../hooks/useCompanyTheme";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from "expo-image-manipulator";
 import { useAppContext } from "../../hooks/AppContext";
 import axios from "axios";
+import { v4 as uuidv4 } from 'uuid';
+
+const mimeToExtension = (mime: string) => {
+  if (!mime) return 'jpg';
+  const m = mime.toLowerCase();
+  const map: Record<string, string> = {
+    'image/jpeg': 'jpg',
+    'image/jpg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'image/gif': 'gif',
+    'image/heic': 'heic',
+  };
+
+  if (map[m]) return map[m];
+
+  const parts = m.split('/');
+  return parts.length > 1 ? parts[1] : 'jpg';
+};
 
 export default function ImageLeadQuestion({ children, isRequired = false, value, onChange, hasValidationError }) {
   const { mutedWidgetBackgroundStyle, mutedWidgetButtonTextStyle } = useCompanyTheme();
@@ -32,11 +52,19 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
       quality: 1,
     });
 
-    if (!result.canceled) {
-      return result.assets[0];
-    }
+    if(result.canceled) return null;
 
-    return null;
+    const asset = result.assets[0];
+
+    const resized = await ImageManipulator.manipulateAsync(
+      asset.uri,
+      [{ resize: { width: 1024 } }],   // auto-calculates height
+      { compress: 0.9, format: ImageManipulator.SaveFormat.JPEG }
+    );
+
+    console.log("Resized photo:", resized);
+
+    return resized;
   }
 
   const takePhoto = async () => {
@@ -52,19 +80,32 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
       quality: 1, // full quality
     });
 
-    if (!result.canceled) {
-      return result.assets[0]; // { uri, width, height, etc }
-    }
+    if(result.canceled) return null;
 
-    return null;
+    const asset = result.assets[0];
+
+    const resized = await ImageManipulator.manipulateAsync(
+      asset.uri,
+      [{ resize: { width: 1024 } }],   // auto-calculates height
+      { compress: 0.9, format: ImageManipulator.SaveFormat.JPEG }
+    );
+
+    console.log("Resized photo:", resized);
+
+    return resized;
   }
 
   const uploadImage = async (photo) => {
-    const mimeType = photo.mimeType || "image/jpeg";
+    const mimeType = photo.mimeType || photo.type || "image/jpeg";
+    const ext = mimeToExtension(mimeType);
+    const uuid = uuidv4();
+    const fileName = `photo_${uuid}.${ext}`;
 
     // 1. Get presigned URL
     const { data: presigned } = await axios.get(
-      `${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/leads/photoUploadUrl?fileName=${photo.fileName}&contentType=${mimeType}`
+      `${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/leads/photoUploadUrl?fileName=${encodeURIComponent(
+        fileName
+      )}&contentType=${encodeURIComponent(mimeType)}`
     );
 
     const url = presigned.url;
@@ -82,7 +123,8 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
       body: buffer,
     });
 
-    console.log("Uploaded OK");
+    console.log("Uploaded OK", fileName);
+    return fileName;
   };
 
   return (

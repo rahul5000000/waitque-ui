@@ -10,6 +10,7 @@ import LeadConfirmationScreen from './src/screens/LeadConfirmationScreen';
 import Toast from 'react-native-toast-message';
 import QuestionnaireResponseDetailViewScreen from './src/screens/QuestionnaireResponseDetailViewScreen';
 import QuestionnaireResponsePageViewScreen from './src/screens/QuestionnaireResponsePageViewScreen';
+import 'react-native-get-random-values';
 
 const Stack = createNativeStackNavigator();
 
