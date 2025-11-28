@@ -155,6 +155,20 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
   }
 
   const removePhoto = () => {
+    try {
+      axios.delete(`${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/leads/photoUpload?photoPath=${encodeURIComponent(value)}`);
+    } catch (error) {
+      console.error("Error removing photo:", error);
+      logError({
+        backendBaseUrl,
+        qrCode,
+        page: 'ImageLeadQuestion',
+        message: 'Remove photo backend call failed',
+        error,
+      }).catch(() => {
+        // swallow errors from logger
+      });
+    }
     onChange(null);
   }
 
