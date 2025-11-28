@@ -8,6 +8,9 @@ import * as ImageManipulator from "expo-image-manipulator";
 import { useAppContext } from "../../hooks/AppContext";
 import axios from "axios";
 import { v4 as uuidv4 } from 'uuid';
+import Spinner from "../Spinner";
+import Toast from 'react-native-toast-message';
+import { logError } from '../../services/mobileLogger';
 
 const mimeToExtension = (mime: string) => {
   if (!mime) return 'jpg';
@@ -31,6 +34,7 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
   const { mutedWidgetBackgroundStyle, mutedWidgetButtonTextStyle } = useCompanyTheme();
   const { backendBaseUrl, qrCode } = useAppContext();
   const [cdnBaseUrl, setCdnBaseUrl] = useState<string>("");
+  const [uploading, setUploading] = useState<boolean>(false);
 
   const handleUpload = async () => {
     const photo = await pickImage();
@@ -47,49 +51,92 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
   }
 
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false,
-      quality: 1,
-    });
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        quality: 1,
+      });
 
-    if(result.canceled) return null;
+      if(result.canceled) return null;
 
-    const asset = result.assets[0];
+      const asset = result.assets[0];
 
-    const resized = await ImageManipulator.manipulateAsync(
-      asset.uri,
-      [{ resize: { width: 1024 } }],   // auto-calculates height
-      { compress: 0.9, format: ImageManipulator.SaveFormat.JPEG }
-    );
+      const resized = await ImageManipulator.manipulateAsync(
+        asset.uri,
+        [{ resize: { width: 1024 } }],   // auto-calculates height
+        { compress: 0.9, format: ImageManipulator.SaveFormat.JPEG }
+      );
 
-    return resized;
+      return resized;
+    } catch (error) {
+      console.error("Error picking image:", error);
+      Toast.show({
+                type: 'error',
+                text1: "There was an issue selecting the photo.",
+                text2: "Please try again."
+              });
+
+      logError({
+        backendBaseUrl,
+        qrCode,
+        page: 'ImageLeadQuestion',
+        message: 'Pick image failed',
+        error,
+      }).catch(() => {
+        // swallow errors from logger
+      });
+
+      return null;
+    }
+    
   }
 
   const takePhoto = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") {
-      alert("Camera permission is required!");
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== "granted") {
+        alert("Camera permission is required!");
+        return null;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        quality: 1, // full quality
+      });
+
+      if(result.canceled) return null;
+
+      const asset = result.assets[0];
+
+      const resized = await ImageManipulator.manipulateAsync(
+        asset.uri,
+        [{ resize: { width: 1024 } }],   // auto-calculates height
+        { compress: 0.9, format: ImageManipulator.SaveFormat.JPEG }
+      );
+
+      return resized;
+    } catch (error) {
+      console.error("Error taking photo:", error);
+      Toast.show({
+                type: 'error',
+                text1: "There was an issue taking the photo.",
+                text2: "Please try again."
+              });
+
+      logError({
+        backendBaseUrl,
+        qrCode,
+        page: 'ImageLeadQuestion',
+        message: 'Take photo failed',
+        error,
+      }).catch(() => {
+        // swallow errors from logger
+      });
+
       return null;
     }
-
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false,
-      quality: 1, // full quality
-    });
-
-    if(result.canceled) return null;
-
-    const asset = result.assets[0];
-
-    const resized = await ImageManipulator.manipulateAsync(
-      asset.uri,
-      [{ resize: { width: 1024 } }],   // auto-calculates height
-      { compress: 0.9, format: ImageManipulator.SaveFormat.JPEG }
-    );
-
-    return resized;
   }
 
   const handleRemove = () => {
@@ -112,37 +159,63 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
   }
 
   const uploadImage = async (photo) => {
-    const mimeType = photo.mimeType || photo.type || "image/jpeg";
-    const ext = mimeToExtension(mimeType);
-    const uuid = uuidv4();
-    const fileName = `photo_${uuid}.${ext}`;
+    try {
+      setUploading(true);
+      const mimeType = photo.mimeType || photo.type || "image/jpeg";
+      const ext = mimeToExtension(mimeType);
+      const uuid = uuidv4();
+      const fileName = `photo_${uuid}.${ext}`;
 
-    // 1. Get presigned URL
-    const { data: presigned } = await axios.get(
-      `${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/leads/photoUploadUrl?fileName=${encodeURIComponent(
-        fileName
-      )}&contentType=${encodeURIComponent(mimeType)}`
-    );
+      // 1. Get presigned URL
+      const { data: presigned } = await axios.get(
+        `${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/leads/photoUploadUrl?fileName=${encodeURIComponent(
+          fileName
+        )}&contentType=${encodeURIComponent(mimeType)}`
+      );
 
-    const url = presigned.url;
-    setCdnBaseUrl(presigned.cdnBaseUrl);
+      const url = presigned.url;
+      setCdnBaseUrl(presigned.cdnBaseUrl);
 
-    // 2. Read the file as ArrayBuffer (works reliably on Android)
-    const response = await fetch(photo.uri);
-    const buffer = await response.arrayBuffer();
+      // 2. Read the file as ArrayBuffer (works reliably on Android)
+      const response = await fetch(photo.uri);
+      const buffer = await response.arrayBuffer();
 
-    // 3. Upload to S3
-    await fetch(url, {
-      method: "PUT",
-      headers: {
-        "Content-Type": mimeType,
-      },
-      body: buffer,
-    });
+      // 3. Upload to S3
+      const uploadResult = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": mimeType,
+        },
+        body: buffer,
+      });
 
-    console.log("Uploaded OK", fileName);
-    
-    onChange(presigned.rawPath);
+      if(!uploadResult.ok) {
+        throw new Error(`Upload to ${url} failed with status ${uploadResult.status} and response ${await uploadResult.text()}`);
+      }
+
+      console.log("Uploaded OK", fileName);
+      
+      onChange(presigned.rawPath);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      Toast.show({
+                type: 'error',
+                text1: "There was an issue attaching the photo.",
+                text2: "Please try again."
+              });
+      
+      logError({
+        backendBaseUrl,
+        qrCode,
+        page: 'ImageLeadQuestion',
+        message: 'Image upload failed',
+        error,
+      }).catch(() => {
+        // swallow errors from logger
+      });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const imageUrl = cdnBaseUrl && value ? `${cdnBaseUrl}/${value}` : null;
@@ -150,7 +223,7 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
   return (
     <View className="flex">
       <LeadQuestionText isRequired={isRequired} hasValidationError={hasValidationError}>{children}</LeadQuestionText>
-      {!value ? <View className="flex-row">
+      {!value ? (!uploading ? <View className="flex-row">
         <TouchableOpacity
           className="rounded-xl items-center justify-center p-12 mr-2 flex-1" style={mutedWidgetBackgroundStyle}
           onPress={handleUpload}
@@ -163,7 +236,7 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
         >
           <Ionicons name="camera" size={30} style={mutedWidgetButtonTextStyle} />
         </TouchableOpacity>
-      </View> : (
+      </View> : <Spinner></Spinner>) : (
         <View style={{ position: 'relative' }}>
           {imageUrl ? (
             <Image source={{ uri: imageUrl }} className="h-48 rounded-xl" />
