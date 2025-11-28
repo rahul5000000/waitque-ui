@@ -1,5 +1,5 @@
-import React from "react";
-import { Image, TextInput, TouchableOpacity, View } from "react-native";
+import React, {useState} from "react";
+import { Image, TextInput, TouchableOpacity, View, Alert, Platform } from "react-native";
 import LeadQuestionText from "./LeadQuestionText";
 import { useCompanyTheme } from "../../hooks/useCompanyTheme";
 import { Ionicons } from "@expo/vector-icons";
@@ -30,6 +30,7 @@ const mimeToExtension = (mime: string) => {
 export default function ImageLeadQuestion({ children, isRequired = false, value, onChange, hasValidationError }) {
   const { mutedWidgetBackgroundStyle, mutedWidgetButtonTextStyle } = useCompanyTheme();
   const { backendBaseUrl, qrCode } = useAppContext();
+  const [cdnBaseUrl, setCdnBaseUrl] = useState<string>("");
 
   const handleUpload = async () => {
     const photo = await pickImage();
@@ -91,6 +92,25 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
     return resized;
   }
 
+  const handleRemove = () => {
+    if(Platform.OS === "web") {
+      return removePhoto();
+    }
+
+    Alert.alert(
+      'Remove photo',
+      'Are you sure you want to remove this photo?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Remove', style: 'destructive', onPress: () => removePhoto() },
+      ]
+    );
+  }
+
+  const removePhoto = () => {
+    onChange(null);
+  }
+
   const uploadImage = async (photo) => {
     const mimeType = photo.mimeType || photo.type || "image/jpeg";
     const ext = mimeToExtension(mimeType);
@@ -105,6 +125,7 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
     );
 
     const url = presigned.url;
+    setCdnBaseUrl(presigned.cdnBaseUrl);
 
     // 2. Read the file as ArrayBuffer (works reliably on Android)
     const response = await fetch(photo.uri);
@@ -124,6 +145,8 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
     onChange(presigned.rawPath);
   };
 
+  const imageUrl = cdnBaseUrl && value ? `${cdnBaseUrl}/${value}` : null;
+
   return (
     <View className="flex">
       <LeadQuestionText isRequired={isRequired} hasValidationError={hasValidationError}>{children}</LeadQuestionText>
@@ -140,7 +163,29 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
         >
           <Ionicons name="camera" size={30} style={mutedWidgetButtonTextStyle} />
         </TouchableOpacity>
-      </View> : <Image source={{uri: value}} className="h-48 rounded-xl" />}
+      </View> : (
+        <View style={{ position: 'relative' }}>
+          {imageUrl ? (
+            <Image source={{ uri: imageUrl }} className="h-48 rounded-xl" />
+          ) : (
+            <View className="h-48 bg-gray-200 rounded-xl" />
+          )}
+          <TouchableOpacity
+            accessibilityLabel="Remove photo"
+            onPress={handleRemove}
+            style={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              backgroundColor: 'rgba(0,0,0,0.6)',
+              padding: 8,
+              borderRadius: 20,
+            }}
+          >
+            <Ionicons name="trash" size={18} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   )
 }
