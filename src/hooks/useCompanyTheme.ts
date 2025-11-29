@@ -32,7 +32,8 @@ export function useCompanyTheme() {
   const dangerButtonTextColor = getContrastingTextColor(theme.dangerButtonColor);
   const dangerButtonBorderColor = brightenHex(theme.dangerButtonColor, borderColorFactor);
   const widgetBackgroundColor = brightenHex(theme.primaryButtonColor, 2.8);
-  const backgroundColorDarker = brightenHex(theme.backgroundColor, borderColorFactor);
+  const backgroundColorDarker = brightenHex(theme.backgroundColor, 0.8);
+  const darkerTextColor = brightenHex(backgroundColorDarker, 0.8);
 
   return {
     // Styles you can spread directly into components:
@@ -52,6 +53,8 @@ export function useCompanyTheme() {
     questionnaireWidgetBackgroundStyle: { backgroundColor: theme.primaryButtonColor },
     questionnaireWidgetButtonTextStyle: { color: widgetBackgroundColor },
     cardStyle: {backgroundColor: 'white', borderColor: backgroundColorDarker, borderWidth: 1, borderRadius: 8},
+    mutedWidgetBackgroundStyle: { backgroundColor: backgroundColorDarker },
+    mutedWidgetButtonTextStyle: { color: darkerTextColor },
 
     // Also expose raw values for flexibility:
     colors: theme,

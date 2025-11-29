@@ -12,6 +12,7 @@ import NumberLeadQuestion from '../components/Lead/NumberLeadQuestion';
 import DecimalLeadQuestion from '../components/Lead/DecimalLeadQuestion';
 import { useAppContext } from '../hooks/AppContext';
 import Toast from 'react-native-toast-message';
+import ImageLeadQuestion from '../components/Lead/ImageLeadQuestion';
 
 export default function LeadEntryScreen({route, navigation}) {
   const { flow } = route.params;
@@ -159,6 +160,7 @@ export default function LeadEntryScreen({route, navigation}) {
               case "TEXTAREA": return (<TextAreaLeadQuestion key={question.id} isRequired={question.isRequired} hasValidationError={questionValidationErrorMap[question.id]} value={questionAnswerMap[question.id]} onChange={(value) => handleAnswerChange(question.id, value)}>{question.question}</TextAreaLeadQuestion>)
               case "NUMBER": return (<NumberLeadQuestion key={question.id} isRequired={question.isRequired} hasValidationError={questionValidationErrorMap[question.id]} value={questionAnswerMap[question.id]} onChange={(value) => handleAnswerChange(question.id, value)}>{question.question}</NumberLeadQuestion>)
               case "DECIMAL": return (<DecimalLeadQuestion key={question.id} isRequired={question.isRequired} hasValidationError={questionValidationErrorMap[question.id]} value={questionAnswerMap[question.id]} onChange={(value) => handleAnswerChange(question.id, value)}>{question.question}</DecimalLeadQuestion>)
+              case "IMAGE": return (<ImageLeadQuestion key={question.id} isRequired={question.isRequired} hasValidationError={questionValidationErrorMap[question.id]} value={questionAnswerMap[question.id]} onChange={(value) => handleAnswerChange(question.id, value)}>{question.question}</ImageLeadQuestion>)
             }
           })}
           <View className="mt-4">
