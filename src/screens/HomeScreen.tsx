@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard, Button } from 'react-native';
+import { View, Text, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard, Button, Settings } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCompanyTheme } from '../hooks/useCompanyTheme';
 import FlowWidget from '../components/FlowWidget';
@@ -7,6 +7,7 @@ import { useAppContext } from '../hooks/AppContext';
 import ContactWidget from '../components/ContactWidget';
 import QuestionnaireResponseWidget from '../components/QuestionnaireResponseWidget';
 import Logo from '../components/Logo';
+import SettingsWidget from '../components/SettingsWidget';
 
 
 export default function HomeScreen({ navigation, route }) {
@@ -57,7 +58,8 @@ export default function HomeScreen({ navigation, route }) {
                         questionnaireResponse={questionnaireResponse}
                       />
                     ))}
-                    {(flows.leadFlows.length + questionnaires.questionnaireResponses.length) % 2 === 1 ? (
+                    <SettingsWidget navigation={navigation} />
+                    {(flows.leadFlows.length + questionnaires.questionnaireResponses.length + 1) % 2 === 1 ? (
                       <View className="w-36 h-32 rounded-xl" />
                     ) : null}
                   </View>

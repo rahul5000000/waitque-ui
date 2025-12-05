@@ -11,25 +11,28 @@ import Toast from 'react-native-toast-message';
 import QuestionnaireResponseDetailViewScreen from './src/screens/QuestionnaireResponseDetailViewScreen';
 import QuestionnaireResponsePageViewScreen from './src/screens/QuestionnaireResponsePageViewScreen';
 import 'react-native-get-random-values';
-import LoginScreen from './src/screens/LoginScreen';
+import { AuthProvider } from './src/hooks/AuthContext';
+import SettingsScreen from './src/screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <AppProvider>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Landing" component={LandingScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="LeadEntry" component={LeadEntryScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="LeadConfirmation" component={LeadConfirmationScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="QuestionnaireResponseDetailView" component={QuestionnaireResponseDetailViewScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="QuestionnairePageView" component={QuestionnaireResponsePageViewScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        </Stack.Navigator>
-      </NavigationContainer>
-      <Toast/>
-    </AppProvider>
+    <AuthProvider>
+      <AppProvider>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="Landing" component={LandingScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="LeadEntry" component={LeadEntryScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="LeadConfirmation" component={LeadConfirmationScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="QuestionnaireResponseDetailView" component={QuestionnaireResponseDetailViewScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="QuestionnairePageView" component={QuestionnaireResponsePageViewScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }} />
+          </Stack.Navigator>
+        </NavigationContainer>
+        <Toast/>
+      </AppProvider>
+    </AuthProvider>
   );
 }

@@ -8,7 +8,8 @@
     "name": "Waitque",
     "slug": "waitque",
     "plugins": [
-      "expo-barcode-scanner"
+      "expo-barcode-scanner",
+      "expo-secure-store"
     ]
   }
 }
