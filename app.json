@@ -1,5 +1,14 @@
 {
   "plugins": [
-    "expo-font"
-  ]
+    "expo-font",
+    "expo-web-browser"
+  ],
+  "expo": {
+    "scheme": "waitque",
+    "name": "Waitque",
+    "slug": "waitque",
+    "plugins": [
+      "expo-barcode-scanner"
+    ]
+  }
 }
