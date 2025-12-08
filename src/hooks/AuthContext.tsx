@@ -7,9 +7,10 @@ interface AuthContextType {
   mode: AuthMode;
   customerCode: string | null;
   accessToken: string | null;
+  refreshToken?: string | null;
 
   loginCustomer: (customerCode: string) => Promise<void>;
-  loginAdmin: (accessToken: string) => Promise<void>;
+  loginAdmin: (accessToken: string, refreshToken: string) => Promise<void>;
   logout: () => Promise<void>;
 
   isLoaded: boolean;
@@ -21,6 +22,7 @@ export function AuthProvider({ children }) {
   const [mode, setMode] = useState<AuthMode>("none");
   const [customerCode, setCustomerCode] = useState<string | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load persisted auth on startup
@@ -36,8 +38,10 @@ export function AuthProvider({ children }) {
         setCustomerCode(code);
       } else if (storedMode === "admin") {
         const token = await SecureStore.getItemAsync("accessToken");
+        const refresh = await SecureStore.getItemAsync("refreshToken");
         setMode("admin");
         setAccessToken(token);
+        setRefreshToken(refresh);
       }
 
       setIsLoaded(true);
@@ -50,21 +54,25 @@ export function AuthProvider({ children }) {
     await SecureStore.setItemAsync("customerCode", code);
 
     await SecureStore.deleteItemAsync("accessToken");
+    await SecureStore.deleteItemAsync("refreshToken");
 
     setMode("customer");
     setCustomerCode(code);
     setAccessToken(null);
+    setRefreshToken(null);
   };
 
   // Login as admin
-  const loginAdmin = async (token: string) => {
+  const loginAdmin = async (token: string, refreshToken: string) => {
     await SecureStore.setItemAsync("auth_mode", "admin");
     await SecureStore.setItemAsync("accessToken", token);
+    await SecureStore.setItemAsync("refreshToken", refreshToken);
 
     await SecureStore.deleteItemAsync("customerCode");
 
     setMode("admin");
     setAccessToken(token);
+    setRefreshToken(refreshToken);
     setCustomerCode(null);
   };
 
@@ -73,15 +81,17 @@ export function AuthProvider({ children }) {
     await SecureStore.deleteItemAsync("auth_mode");
     await SecureStore.deleteItemAsync("customerCode");
     await SecureStore.deleteItemAsync("accessToken");
+    await SecureStore.deleteItemAsync("refreshToken");
 
     setMode("none");
     setCustomerCode(null);
     setAccessToken(null);
+    setRefreshToken(null);
   };
 
   return (
     <AuthContext.Provider
-      value={{ mode, customerCode, accessToken, loginCustomer, loginAdmin, logout, isLoaded }}
+      value={{ mode, customerCode, accessToken, loginCustomer, loginAdmin, logout, isLoaded, refreshToken }}
     >
       {children}
     </AuthContext.Provider>

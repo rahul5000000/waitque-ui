@@ -21,7 +21,7 @@ export default function LoadingOverlay({ isLoaded }) {
   // Fade-out when loaded
   useEffect(() => {
     if (isLoaded) {
-      opacity.value = withDelay(500, withTiming(0, {
+      opacity.value = withDelay(1000, withTiming(0, {
         duration: 600,
         easing: Easing.out(Easing.ease),
       }, () => {
@@ -45,7 +45,7 @@ export default function LoadingOverlay({ isLoaded }) {
     borderRadius.value = withRepeat(
       withSequence(
         withTiming(180, { duration: 1500, easing: Easing.ease }),
-        withTiming(0, { duration: 1500, easing: Easing.ease })
+        withTiming(50, { duration: 1500, easing: Easing.ease })
       ),
       -1,
       true

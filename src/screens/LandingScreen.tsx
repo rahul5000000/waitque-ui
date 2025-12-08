@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Alert, Platform, Button, View, TouchableOpacity } from 'react-native';
-import Spinner from '../components/Spinner';
 import axios from 'axios';
 import { useAppContext } from '../hooks/AppContext';
 import QRScanner from '../components/QRScanner';
@@ -10,11 +9,11 @@ import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import { useAuth } from '../hooks/AuthContext';
 import LoadingOverlay from '../components/LoadingOverlay';
+import { discovery, buildRedirectUri, exchangeCodeForToken, buildAuthRequest } from "../services/authService";
 
 export default function LandingScreen({ navigation }) {
   const { setCompany, setCustomer, setFlows, setBackendBaseUrl, setQrCode, setQuestionnaires } = useAppContext();
   const [isFetching, setIsFetching] = React.useState(false);
-  const [tokenResponse, setTokenResponse] = React.useState(null);
   const { isLoaded, mode, customerCode, loginCustomer, loginAdmin } = useAuth();
 
   useEffect(() => {
@@ -22,6 +21,11 @@ export default function LandingScreen({ navigation }) {
 
     if (mode === "customer") {
       fetchCustomerData(customerCode);
+    } else if (mode === "admin") {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "FieldHome" }],
+      });
     }
   }, [isLoaded, mode]);
 
@@ -61,70 +65,56 @@ export default function LandingScreen({ navigation }) {
     }
   };
 
-  const discovery = {
-      authorizationEndpoint: "http://waitque-alb-1208411922.us-east-1.elb.amazonaws.com/realms/rrs-waitque/protocol/openid-connect/auth",
-      tokenEndpoint: "http://waitque-alb-1208411922.us-east-1.elb.amazonaws.com/realms/rrs-waitque/protocol/openid-connect/token",
-      revocationEndpoint: "http://waitque-alb-1208411922.us-east-1.elb.amazonaws.com/realms/rrs-waitque/protocol/openid-connect/revoke",
+  const redirectUri = buildRedirectUri();
+
+  const [request, response, promptAsync] = AuthSession.useAuthRequest(
+    buildAuthRequest(redirectUri),
+    discovery
+  );
+
+  useEffect(() => {
+    const handleAuth = async () => {
+      if (response?.type === "success") {
+        const { code } = response.params;
+
+        const tokenResult = await exchangeCodeForToken({
+          code,
+          clientId: "mobile-app",
+          redirectUri,
+          codeVerifier: request.codeVerifier,
+        });
+
+        console.log("Token Result:", tokenResult);
+
+        await loginAdmin(tokenResult.accessToken, tokenResult.refreshToken);
+
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "FieldHome" }],
+        });
+      }
     };
-  
-    const redirectUri = AuthSession.makeRedirectUri({
-      scheme: "waitque",
-      path: "redirect",
-    });
-  
-    const [request, response, promptAsync] = AuthSession.useAuthRequest(
-      {
-        clientId: "mobile-app",
-        redirectUri,
-        responseType: "code",
-        scopes: ["openid", "profile", "email"],
-        usePKCE: true,
-      },
-      discovery
-    );
-  
-    useEffect(() => {
-      const exchange = async () => {
-        if (response?.type === "success") {
-          const { code } = response.params;
-  
-          const tokenResult = await AuthSession.exchangeCodeAsync(
-            {
-              code,
-              clientId: "mobile-app",
-              redirectUri,
-              extraParams: {
-                code_verifier: request.codeVerifier,
-              },
-            },
-            discovery
-          );
-  
-          console.log("Token Result:", tokenResult);
-  
-          setTokenResponse(tokenResult);
-        }
-      };
-  
-      exchange();
-    }, [response]);
+
+    handleAuth();
+  }, [response]);
+
 
   return (
     <SafeAreaView className='flex-1'>
       <LoadingOverlay isLoaded={isLoaded && !isFetching} />
-      {!isLoaded || isFetching ? null : 
-      <>
-        <View className='flex-row justify-end p-4'>
-          <TouchableOpacity className='pb-10 pl-10 pt-2 pr-2' onPress={() => promptAsync()}>
-            <Ionicons name="lock-open" size={24}></Ionicons>
-          </TouchableOpacity>
-        </View>
-        <View className='p-5 m-5'>
-          <Text className="text-3xl font-bold mr-20 mb-5">Login with your customer QR code:</Text>
-          <QRScanner onScan={fetchCustomerData}/>
-          <Text className='text-center mt-6'>or Manually enter your Customer Code</Text>
-        </View>
-      </>
+      {!isLoaded || isFetching ? null :
+        <>
+          <View className='flex-row justify-end p-4'>
+            <TouchableOpacity className='pb-10 pl-10 pt-2 pr-2' onPress={() => promptAsync()}>
+              <Ionicons name="lock-open" size={24}></Ionicons>
+            </TouchableOpacity>
+          </View>
+          <View className='p-5 m-5'>
+            <Text className="text-3xl font-bold mr-20 mb-5">Login with your customer QR code:</Text>
+            <QRScanner onScan={fetchCustomerData} />
+            <Text className='text-center mt-6'>or Manually enter your Customer Code</Text>
+          </View>
+        </>
       }
 
     </SafeAreaView>
