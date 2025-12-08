@@ -10,6 +10,8 @@ import * as WebBrowser from "expo-web-browser";
 import { useAuth } from '../hooks/AuthContext';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { discovery, buildRedirectUri, exchangeCodeForToken, buildAuthRequest } from "../services/authService";
+import { userService } from '../services/backend/userService';
+import { publicService } from '../services/backend/publicService';
 
 export default function LandingScreen({ navigation }) {
   const { setCompany, setCustomer, setFlows, setBackendBaseUrl, setQrCode, setQuestionnaires } = useAppContext();
@@ -38,10 +40,10 @@ export default function LandingScreen({ navigation }) {
       const baseUrl = Platform.OS === 'android' || Platform.OS === 'ios' ? 'http://10.0.0.236:8083' : 'http://localhost:8083';
 
       const [customerResponse, companyResponse, flowsResponse, questionnairesResponse] = await Promise.all([
-        axios.get(`${baseUrl}/api/public/customers/qrCode/${qrCode}/me`),
-        axios.get(`${baseUrl}/api/public/customers/qrCode/${qrCode}/company`),
-        axios.get(`${baseUrl}/api/public/customers/qrCode/${qrCode}/company/flows?limit=10&page=0`), // TODO: get all pages of flows
-        axios.get(`${baseUrl}/api/public/customers/qrCode/${qrCode}/questionnaires/*/responses?status=ACTIVE&limit=10&page=0`), // TODO: get all pages of flows
+        publicService.getMe(qrCode),
+        publicService.getCompany(qrCode),
+        publicService.getFlows(qrCode, 10, 0), // TODO: get all pages of flows
+        publicService.getQuestionnaireResponses(qrCode, 10, 0), // TODO: get all pages of flows
       ]);
 
       setCustomer(customerResponse.data);
@@ -64,6 +66,29 @@ export default function LandingScreen({ navigation }) {
       setIsFetching(false);
     }
   };
+
+  const fetchUserData = async (accessToken) => {
+    try {
+      setIsFetching(true);
+      const user = await userService.getMe();
+
+      console.log('Fetched user data:', user.data);
+
+      if(user.data.role == "FIELD_USER") {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "FieldHome" }],
+        });
+      } else {
+        throw new Error("Unsupported user role");
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      Alert.alert('Error', 'Failed to load user information.');
+    } finally {
+      setIsFetching(false);
+    }
+  }
 
   const redirectUri = buildRedirectUri();
 
@@ -88,10 +113,7 @@ export default function LandingScreen({ navigation }) {
 
         await loginAdmin(tokenResult.accessToken, tokenResult.refreshToken);
 
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "FieldHome" }],
-        });
+        await fetchUserData(tokenResult.accessToken);
       }
     };
 
