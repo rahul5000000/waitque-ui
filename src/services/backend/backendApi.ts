@@ -1,9 +1,9 @@
 import axios from "axios";
 import { 
-  getAccessToken, 
-  getRefreshToken, 
-  setAccessToken, 
-  clearSession 
+  retrieveAccessToken, 
+  retrieveRefreshToken, 
+  saveAccessToken, 
+  deleteTokens 
 } from "./tokenStorage";
 
 export const backendApi = axios.create();
@@ -21,7 +21,7 @@ const processQueue = (error, token = null) => {
 
 backendApi.interceptors.request.use(
   async (config) => {
-    const token = await getAccessToken();
+    const token = await retrieveAccessToken();
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
@@ -55,7 +55,7 @@ backendApi.interceptors.response.use(
         return backendApi(originalRequest);
       } catch (err) {
         processQueue(err, null);
-        await clearSession();
+        await deleteTokens();
         throw err;
       } finally {
         isRefreshing = false;
@@ -67,7 +67,7 @@ backendApi.interceptors.response.use(
 );
 
 async function refreshAccessToken() {
-  const refreshToken = await getRefreshToken();
+  const refreshToken = await retrieveRefreshToken();
 
   // ALWAYS talk to the user-service for refresh
   const response = await axios.post(`http://10.0.0.236:8084/api/auth/refresh`, {
@@ -75,7 +75,7 @@ async function refreshAccessToken() {
   });
 
   const newAccessToken = response.data.accessToken;
-  await setAccessToken(newAccessToken);
+  await saveAccessToken(newAccessToken);
 
   return newAccessToken;
 }

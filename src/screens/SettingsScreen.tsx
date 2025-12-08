@@ -11,14 +11,14 @@ import { useAuth } from "../hooks/AuthContext";
 
 export default function SettingsScreen({navigation}) {
   const {colors} = useCompanyTheme();
-  const {mode, refreshToken, logout} = useAuth();
+  const {mode, logout} = useAuth();
 
   const handleGoBack = async () => {
     navigation.goBack();
   };
 
   const handleLogout = async () => {
-    await logoutUser(mode, refreshToken, logout);
+    await logoutUser(mode, logout);
     navigation.reset({
       index: 0,
       routes: [{ name: "Landing" }],

@@ -1,4 +1,5 @@
 import * as AuthSession from "expo-auth-session";
+import { retrieveRefreshToken } from "./backend/tokenStorage";
 
 const KEYCLOAK_BASE =
   "http://waitque-alb-1208411922.us-east-1.elb.amazonaws.com/realms/rrs-waitque/protocol/openid-connect";
@@ -58,8 +59,9 @@ export function buildAuthRequest(redirectUri: string) {
     };
 }
 
-export async function logoutUser(mode, refreshToken, logoutHook) {
+export async function logoutUser(mode, logoutHook) {
   if(mode === "admin") {
+    const refreshToken = await retrieveRefreshToken();
     if(refreshToken) {
       await fetch(discovery.logoutEndpoint, {
         method: "POST",

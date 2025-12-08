@@ -24,10 +24,7 @@ export default function LandingScreen({ navigation }) {
     if (mode === "customer") {
       fetchCustomerData(customerCode);
     } else if (mode === "admin") {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "FieldHome" }],
-      });
+      fetchUserData();
     }
   }, [isLoaded, mode]);
 
@@ -67,12 +64,14 @@ export default function LandingScreen({ navigation }) {
     }
   };
 
-  const fetchUserData = async (accessToken) => {
+  const fetchUserData = async () => {
     try {
       setIsFetching(true);
       const user = await userService.getMe();
 
       console.log('Fetched user data:', user.data);
+
+      await delay(1000);
 
       if(user.data.role == "FIELD_USER") {
         navigation.reset({
@@ -109,11 +108,9 @@ export default function LandingScreen({ navigation }) {
           codeVerifier: request.codeVerifier,
         });
 
-        console.log("Token Result:", tokenResult);
-
         await loginAdmin(tokenResult.accessToken, tokenResult.refreshToken);
 
-        await fetchUserData(tokenResult.accessToken);
+        await fetchUserData();
       }
     };
 

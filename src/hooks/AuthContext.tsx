@@ -1,13 +1,18 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
+import { 
+  retrieveAccessToken, 
+  retrieveRefreshToken, 
+  saveAccessToken, 
+  saveRefreshToken,
+  deleteTokens 
+} from "../services/backend/tokenStorage";
 
 type AuthMode = "customer" | "admin" | "none";
 
 interface AuthContextType {
   mode: AuthMode;
   customerCode: string | null;
-  accessToken: string | null;
-  refreshToken?: string | null;
 
   loginCustomer: (customerCode: string) => Promise<void>;
   loginAdmin: (accessToken: string, refreshToken: string) => Promise<void>;
@@ -21,8 +26,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }) {
   const [mode, setMode] = useState<AuthMode>("none");
   const [customerCode, setCustomerCode] = useState<string | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load persisted auth on startup
@@ -37,11 +40,11 @@ export function AuthProvider({ children }) {
         setMode("customer");
         setCustomerCode(code);
       } else if (storedMode === "admin") {
-        const token = await SecureStore.getItemAsync("accessToken");
-        const refresh = await SecureStore.getItemAsync("refreshToken");
-        setMode("admin");
-        setAccessToken(token);
-        setRefreshToken(refresh);
+        const token = await retrieveAccessToken();
+        const refresh = await retrieveRefreshToken();
+        if (token && refresh) {
+          setMode("admin");
+        }
       }
 
       setIsLoaded(true);
@@ -53,26 +56,21 @@ export function AuthProvider({ children }) {
     await SecureStore.setItemAsync("auth_mode", "customer");
     await SecureStore.setItemAsync("customerCode", code);
 
-    await SecureStore.deleteItemAsync("accessToken");
-    await SecureStore.deleteItemAsync("refreshToken");
+    await deleteTokens();
 
     setMode("customer");
     setCustomerCode(code);
-    setAccessToken(null);
-    setRefreshToken(null);
   };
 
   // Login as admin
   const loginAdmin = async (token: string, refreshToken: string) => {
     await SecureStore.setItemAsync("auth_mode", "admin");
-    await SecureStore.setItemAsync("accessToken", token);
-    await SecureStore.setItemAsync("refreshToken", refreshToken);
+    await saveAccessToken(token);
+    await saveRefreshToken(refreshToken);
 
     await SecureStore.deleteItemAsync("customerCode");
 
     setMode("admin");
-    setAccessToken(token);
-    setRefreshToken(refreshToken);
     setCustomerCode(null);
   };
 
@@ -80,18 +78,15 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     await SecureStore.deleteItemAsync("auth_mode");
     await SecureStore.deleteItemAsync("customerCode");
-    await SecureStore.deleteItemAsync("accessToken");
-    await SecureStore.deleteItemAsync("refreshToken");
+    await deleteTokens();
 
     setMode("none");
     setCustomerCode(null);
-    setAccessToken(null);
-    setRefreshToken(null);
   };
 
   return (
     <AuthContext.Provider
-      value={{ mode, customerCode, accessToken, loginCustomer, loginAdmin, logout, isLoaded, refreshToken }}
+      value={{ mode, customerCode, loginCustomer, loginAdmin, logout, isLoaded }}
     >
       {children}
     </AuthContext.Provider>
