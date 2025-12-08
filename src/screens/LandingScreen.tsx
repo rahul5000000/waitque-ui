@@ -12,11 +12,15 @@ import LoadingOverlay from '../components/LoadingOverlay';
 import { discovery, buildRedirectUri, exchangeCodeForToken, buildAuthRequest } from "../services/authService";
 import { userService } from '../services/backend/userService';
 import { publicService } from '../services/backend/publicService';
+import { companyService } from '../services/backend/companyService';
+import { logoutUser } from "../services/authService";
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function LandingScreen({ navigation }) {
-  const { setCompany, setCustomer, setFlows, setBackendBaseUrl, setQrCode, setQuestionnaires } = useAppContext();
+  const { setCompany, setCustomer, setFlows, setBackendBaseUrl, setQrCode, setQuestionnaires, setUser, clearContext } = useAppContext();
   const [isFetching, setIsFetching] = React.useState(false);
-  const { isLoaded, mode, customerCode, loginCustomer, loginAdmin } = useAuth();
+  const { isLoaded, mode, customerCode, loginCustomer, loginAdmin, logout } = useAuth();
 
   useEffect(() => {
     if (!isLoaded) return;              // Wait until SecureStore is loaded
@@ -58,7 +62,8 @@ export default function LandingScreen({ navigation }) {
       });
     } catch (error) {
       console.error('Error fetching customer:', error);
-      Alert.alert('Error', 'Failed to load customer information.');
+      await logoutUser(mode, logout);
+      await clearContext();
     } finally {
       setIsFetching(false);
     }
@@ -67,13 +72,20 @@ export default function LandingScreen({ navigation }) {
   const fetchUserData = async () => {
     try {
       setIsFetching(true);
-      const user = await userService.getMe();
+      const userResponse = await userService.getMe();
+      const user = userResponse.data;
+      setUser(user);
 
-      console.log('Fetched user data:', user.data);
+      console.log('Fetched user data:', user);
+
+      const companyResponse = await companyService.getCompany(user.role);
+      setCompany(companyResponse.data);
+
+      console.log('Fetched company data:', companyResponse.data);
 
       await delay(1000);
 
-      if(user.data.role == "FIELD_USER") {
+      if(user.role == "FIELD_USER") {
         navigation.reset({
           index: 0,
           routes: [{ name: "FieldHome" }],
@@ -83,7 +95,8 @@ export default function LandingScreen({ navigation }) {
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      Alert.alert('Error', 'Failed to load user information.');
+      await logoutUser(mode, logout);
+      await clearContext();
     } finally {
       setIsFetching(false);
     }

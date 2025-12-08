@@ -6,6 +6,7 @@ import {
   deleteTokens 
 } from "./tokenStorage";
 
+export type userType = "ADMIN" | "FIELD_USER";
 export const backendApi = axios.create();
 
 let isRefreshing = false;

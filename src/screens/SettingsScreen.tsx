@@ -8,10 +8,12 @@ import Logo from "../components/Logo";
 import { WarningButton } from "../components/Buttons";
 import { logoutUser } from "../services/authService";
 import { useAuth } from "../hooks/AuthContext";
+import { useAppContext } from "../hooks/AppContext";
 
 export default function SettingsScreen({navigation}) {
   const {colors} = useCompanyTheme();
   const {mode, logout} = useAuth();
+  const {clearContext} = useAppContext();
 
   const handleGoBack = async () => {
     navigation.goBack();
@@ -19,6 +21,8 @@ export default function SettingsScreen({navigation}) {
 
   const handleLogout = async () => {
     await logoutUser(mode, logout);
+    await clearContext();
+    
     navigation.reset({
       index: 0,
       routes: [{ name: "Landing" }],
