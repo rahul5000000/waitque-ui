@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import * as SecureStore from "expo-secure-store";
 import { 
   retrieveAccessToken, 
   retrieveRefreshToken, 
@@ -7,6 +6,7 @@ import {
   saveRefreshToken,
   deleteTokens 
 } from "../services/backend/tokenStorage";
+import { setItem, getItem, deleteItem } from "../services/backend/secureStoreWrapper";
 
 type AuthMode = "customer" | "admin" | "none";
 
@@ -31,12 +31,12 @@ export function AuthProvider({ children }) {
   // Load persisted auth on startup
   useEffect(() => {
     (async () => {
-      const storedMode = await SecureStore.getItemAsync("auth_mode");
+      const storedMode = await getItem("auth_mode");
 
       console.log("Loaded auth mode from storage:", storedMode);
 
       if (storedMode === "customer") {
-        const code = await SecureStore.getItemAsync("customerCode");
+        const code = await getItem("customerCode");
         setMode("customer");
         setCustomerCode(code);
       } else if (storedMode === "admin") {
@@ -53,8 +53,8 @@ export function AuthProvider({ children }) {
 
   // Login as customer
   const loginCustomer = async (code: string) => {
-    await SecureStore.setItemAsync("auth_mode", "customer");
-    await SecureStore.setItemAsync("customerCode", code);
+    await setItem("auth_mode", "customer");
+    await setItem("customerCode", code);
 
     await deleteTokens();
 
@@ -64,11 +64,11 @@ export function AuthProvider({ children }) {
 
   // Login as admin
   const loginAdmin = async (token: string, refreshToken: string) => {
-    await SecureStore.setItemAsync("auth_mode", "admin");
+    await setItem("auth_mode", "admin");
     await saveAccessToken(token);
     await saveRefreshToken(refreshToken);
 
-    await SecureStore.deleteItemAsync("customerCode");
+    await deleteItem("customerCode");
 
     setMode("admin");
     setCustomerCode(null);
@@ -76,8 +76,8 @@ export function AuthProvider({ children }) {
 
   // Logout (both types)
   const logout = async () => {
-    await SecureStore.deleteItemAsync("auth_mode");
-    await SecureStore.deleteItemAsync("customerCode");
+    await deleteItem("auth_mode");
+    await deleteItem("customerCode");
     await deleteTokens();
 
     setMode("none");

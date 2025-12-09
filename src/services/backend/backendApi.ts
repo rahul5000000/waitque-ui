@@ -3,11 +3,23 @@ import {
   retrieveAccessToken, 
   retrieveRefreshToken, 
   saveAccessToken, 
-  deleteTokens 
+  deleteTokens, 
+  saveRefreshToken
 } from "./tokenStorage";
+import { refreshAccessToken } from "../authService";
 
 export type userType = "ADMIN" | "FIELD_USER";
 export const backendApi = axios.create();
+export const mapUserTypeToPath = (userType: userType): string => {
+  switch(userType) {
+    case "ADMIN":
+      return "admin";
+    case "FIELD_USER":
+      return "field";
+    default:
+      throw new Error(`Unsupported user type: ${userType}`);
+  }
+};
 
 let isRefreshing = false;
 let failedQueue = [];
@@ -49,7 +61,7 @@ backendApi.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const newToken = await refreshAccessToken();
+        const newToken = await refreshToken();
         processQueue(null, newToken);
 
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
@@ -67,18 +79,15 @@ backendApi.interceptors.response.use(
   }
 );
 
-async function refreshAccessToken() {
+async function refreshToken() {
   const refreshToken = await retrieveRefreshToken();
 
-  // ALWAYS talk to the user-service for refresh
-  const response = await axios.post(`http://10.0.0.236:8084/api/auth/refresh`, {
-    refreshToken,
-  });
+  const newTokens = await refreshAccessToken(refreshToken);
 
-  const newAccessToken = response.data.accessToken;
-  await saveAccessToken(newAccessToken);
+  await saveAccessToken(newTokens.accessToken);
+  await saveRefreshToken(newTokens.refreshToken);
 
-  return newAccessToken;
+  return newTokens.accessToken;
 }
 
 export default backendApi;

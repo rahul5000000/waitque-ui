@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCompanyTheme } from "../hooks/useCompanyTheme";import SettingsWidget from "../components/SettingsWidget";
 import Logo from "../components/Logo";
 import { useAppContext } from "../hooks/AppContext";
+import ManageCustomerWidget from "../components/ManageCustomerWidget";
 ;
 
 export default function FieldHomeScreen({navigation}) {
@@ -27,8 +28,9 @@ export default function FieldHomeScreen({navigation}) {
 
         <View style={{ flex: 1 }}>
           <View className="flex-row flex-wrap justify-center gap-4 mb-8">
+            <ManageCustomerWidget navigation={navigation} />
             <SettingsWidget navigation={navigation} />
-            {(1) % 2 === 1 ? (
+            {(1 + 1) % 2 === 1 ? (
               <View className="w-36 h-32 rounded-xl" />
             ) : null}
           </View>

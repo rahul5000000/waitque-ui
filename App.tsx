@@ -14,6 +14,7 @@ import 'react-native-get-random-values';
 import { AuthProvider } from './src/hooks/AuthContext';
 import SettingsScreen from './src/screens/SettingsScreen';
 import FieldHomeScreen from './src/screens/FieldHomeScreen';
+import ManageCustomersScreen from './src/screens/ManageCustomersScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +32,7 @@ export default function App() {
             <Stack.Screen name="QuestionnairePageView" component={QuestionnaireResponsePageViewScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }} />
             <Stack.Screen name="FieldHome" component={FieldHomeScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="ManageCustomers" component={ManageCustomersScreen} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
         <Toast/>

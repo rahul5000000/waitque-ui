@@ -1,21 +1,21 @@
-import * as SecureStore from "expo-secure-store";
+import { setItem, getItem, deleteItem } from "./secureStoreWrapper";
 
 // Save tokens
 export const saveAccessToken = (token) =>
-  SecureStore.setItemAsync("accessToken", token);
+  setItem("accessToken", token);
 
 export const saveRefreshToken = (token) =>
-  SecureStore.setItemAsync("refreshToken", token);
+  setItem("refreshToken", token);
 
 // Get tokens
 export const retrieveAccessToken = () =>
-  SecureStore.getItemAsync("accessToken");
+  getItem("accessToken");
 
 export const retrieveRefreshToken = () =>
-  SecureStore.getItemAsync("refreshToken");
+  getItem("refreshToken");
 
 // Clear both
 export const deleteTokens = async () => {
-  await SecureStore.deleteItemAsync("accessToken");
-  await SecureStore.deleteItemAsync("refreshToken");
+  await deleteItem("accessToken");
+  await deleteItem("refreshToken");
 };
