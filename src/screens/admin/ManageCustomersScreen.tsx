@@ -84,15 +84,15 @@ export default function ManageCustomersScreen({ navigation }) {
           )}
 
           {results.map((c, index) => (
-            <View key={index} className="py-4 border-b border-gray-300">
-              {c.customerType == "RESIDENTIAL" ? (
-                <TouchableOpacity onPress={() => navigation.navigate("ResidentialCustomerDetail", {customerMetadata: c})}>
+            c.customerType == "RESIDENTIAL" ? (
+                <TouchableOpacity key={index} className="py-4 border-b border-gray-300" onPress={() => navigation.navigate("ResidentialCustomerDetail", {customerMetadata: c})}>
                   <Text className="text-lg">{c.firstName} {c.lastName}</Text>
                 </TouchableOpacity>
               ) : (
-                <Text className="text-lg">{c.companyName}</Text>
-              )}
-            </View>
+                <TouchableOpacity key={index} className="py-4 border-b border-gray-300" onPress={() => navigation.navigate("CommercialCustomerDetail", {customerMetadata: c})}>
+                  <Text className="text-lg">{c.companyName}</Text>
+                </TouchableOpacity>
+              )
           ))}
         </ScrollView>
         {isSearching && 

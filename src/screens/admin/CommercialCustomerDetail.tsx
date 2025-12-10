@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCompanyTheme } from "../../hooks/useCompanyTheme";
 import { useAppContext } from "../../hooks/AppContext";
@@ -12,14 +12,18 @@ import TitledMultilineText from "../../components/TitledMultilineText";
 import QRCodeRender from "../../components/QRCodeRender";
 import { PrimaryButton, WarningButton } from "../../components/Buttons";
 import { Ionicons } from "@expo/vector-icons";
+import { companyService } from "../../services/backend/companyService";
+import QuestionnaireResponseStatusWidget from "../../components/admin/QuestionnaireResponseStatusWidget";
 
-export default function ResidentialCustomerDetail({navigation, route}) {
+export default function CommercialCustomerDetail({navigation, route}) {
   const {customerMetadata} = route.params;
   const {user} = useAppContext();
   const {colors, backgroundStyle, mutedWidgetBackgroundStyle, mutedWidgetButtonTextStyle} = useCompanyTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [customer, setCustomer] = useState(null);
-  
+  const [questionnaires, setQuestionnaires] = useState([]);
+  const [questionnaireResponses, setQuestionnaireResponses] = useState([]);
+  const [questionnaireResponseMap, setQuestionnaireResponseMap] = useState(new Map());
 
   useEffect(() => {
     fetchCustomerDetails();
@@ -28,10 +32,39 @@ export default function ResidentialCustomerDetail({navigation, route}) {
   const fetchCustomerDetails = async() => {
     setIsLoading(true);
     try{
-      const customerResponse = await customerService.getCustomer(customerMetadata.id, user.role);
+      const [customerResponse, questionnairesResponse, questionnaireResponsesResponse] = await Promise.all([
+        customerService.getCustomer(customerMetadata.id, user.role),
+        companyService.getQuestionnaires(["ACTIVE"], user.role),
+        customerService.getQuestionnaireResponses(customerMetadata.id, ["ACTIVE", "INACTIVE"], user.role)
+      ]);
+
+      const questionnaires = questionnairesResponse.data.questionnaires;
+      const questionnaireResponses = questionnaireResponsesResponse.data.questionnaireResponses;
+
+      const questionnaireMap = new Map();
+
+      // seed with questionnaires
+      questionnaires.forEach(q => {
+        questionnaireMap.set(q.id, { questionnaire: q, responses: [] });
+      });
+
+      // attach responses
+      questionnaireResponses.forEach(r => {
+        const entry = questionnaireMap.get(r.questionnaireId);
+        if (entry) {
+          entry.responses.push(r);
+        }
+      });
+
       setCustomer(customerResponse.data);
+      setQuestionnaires(questionnaires);
+      setQuestionnaireResponses(questionnaireResponses);
+      setQuestionnaireResponseMap(questionnaireMap);
 
       console.log("Customer Details: ", customerResponse.data);
+      console.log("Questionnaires", questionnaires);
+      console.log("Questionnaire Responses", questionnaireResponses);
+      console.log("Questionnaire Response Map", questionnaireMap);
     } catch(error) {
       console.error(error);
       Toast.show({
@@ -46,7 +79,7 @@ export default function ResidentialCustomerDetail({navigation, route}) {
 
   return (
     <SafeAreaView style={[backgroundStyle, { flex: 1 }]}>
-      <View style={{ flex: 1}}>
+      <ScrollView style={{ flex: 1}}>
         <View className="pt-8 px-8">
           <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>
             Customer Details
@@ -55,13 +88,18 @@ export default function ResidentialCustomerDetail({navigation, route}) {
 
         {isLoading ? <Spinner/> : <>
           <View className="mx-8 mt-6 mb-0">
-            <Text className="text-2xl font-semibold text-center">{customerMetadata.firstName} {customerMetadata.lastName}</Text>
-            <Text className="text-xs text-center" style={mutedWidgetButtonTextStyle}>Residential</Text>
+            <Text className="text-2xl font-semibold text-center">{customerMetadata.companyName}</Text>
+            <Text className="text-xs text-center" style={mutedWidgetButtonTextStyle}>Commercial</Text>
           </View>
           <View className="p-4 m-8 mt-6 rounded-xl" style={mutedWidgetBackgroundStyle}>
             <View>
-              {customer?.phone.phoneNumber ?
+              {customer?.firstName && customer?.lastName ?
               <View className="pb-3 border-b" style={{borderColor: colors.backgroundColor}}>
+                <TitledText title="Contact Name">{customer?.firstName} {customer?.lastName}</TitledText>
+              </View>
+              : null}
+              {customer?.phone.phoneNumber ?
+              <View className="py-3 border-b" style={{borderColor: colors.backgroundColor}}>
                 <TitledText title="Phone">{customer?.phone.phoneNumber}</TitledText>
               </View>
               : null}
@@ -120,8 +158,14 @@ export default function ResidentialCustomerDetail({navigation, route}) {
             <PrimaryButton onPress={() => {navigation.navigate('AssignQRCodeScreen', {customerMetadata})}}>Assign QR Code</PrimaryButton>
           </View>
           }
+
+          {Array.from(questionnaireResponseMap.entries()).map(([id, entry]) => (
+            <TouchableOpacity key={id} className="m-8 rounded-xl" style={mutedWidgetBackgroundStyle}>
+              <QuestionnaireResponseStatusWidget questionnaire={entry.questionnaire} questionnaireResponse={entry.responses.reduce((max, r) => (r.id > max.id ? r : max), questionnaireResponses[0])}></QuestionnaireResponseStatusWidget>
+            </TouchableOpacity>
+          ))}
         </>}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   )
 }

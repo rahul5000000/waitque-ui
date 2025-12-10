@@ -17,6 +17,8 @@ import FieldHomeScreen from './src/screens/admin/FieldHomeScreen';
 import ManageCustomersScreen from './src/screens/admin/ManageCustomersScreen';
 import ResidentialCustomerDetail from './src/screens/admin/ResidentialCustomerDetail';
 import { setNavigator } from './src/services/navigationService';
+import AssignQRCodeScreen from './src/screens/admin/AssignQRCodeScreen';
+import CommercialCustomerDetail from './src/screens/admin/CommercialCustomerDetail';
 
 const Stack = createNativeStackNavigator();
 
@@ -36,6 +38,8 @@ export default function App() {
             <Stack.Screen name="FieldHome" component={FieldHomeScreen} options={{ headerShown: false }} />
             <Stack.Screen name="ManageCustomers" component={ManageCustomersScreen} options={{ headerShown: false }} />
             <Stack.Screen name="ResidentialCustomerDetail" component={ResidentialCustomerDetail} options={{ headerShown: false }} />
+            <Stack.Screen name="AssignQRCodeScreen" component={AssignQRCodeScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="CommercialCustomerDetail" component={CommercialCustomerDetail} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
         <Toast/>
