@@ -23,5 +23,6 @@ export const customerService = {
         },
       }
     );
-  }
+  },
+  getCustomer: (customerId: number, userType: userType) => backendApi.get(`${CUSTOMER_BASE}/api/${mapUserTypeToPath(userType)}/customers/${customerId}`),
 };

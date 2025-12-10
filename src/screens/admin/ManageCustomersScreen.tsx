@@ -1,12 +1,12 @@
 import React from "react";
-import { View, Text, ScrollView, TextInput, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, ScrollView, TextInput, KeyboardAvoidingView, Platform, TouchableOpacity } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Header from "../components/Header";
-import { useCompanyTheme } from "../hooks/useCompanyTheme";
-import { customerService } from "../services/backend/customerService";
-import { useAppContext } from "../hooks/AppContext";
-import Spinner from "../components/Spinner";
-import { PrimaryButton } from "../components/Buttons";
+import Header from "../../components/Header";
+import { useCompanyTheme } from "../../hooks/useCompanyTheme";
+import { customerService } from "../../services/backend/customerService";
+import { useAppContext } from "../../hooks/AppContext";
+import Spinner from "../../components/Spinner";
+import { PrimaryButton } from "../../components/Buttons";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function ManageCustomersScreen({ navigation }) {
@@ -86,7 +86,9 @@ export default function ManageCustomersScreen({ navigation }) {
           {results.map((c, index) => (
             <View key={index} className="py-4 border-b border-gray-300">
               {c.customerType == "RESIDENTIAL" ? (
-                <Text className="text-lg">{c.firstName} {c.lastName}</Text>
+                <TouchableOpacity onPress={() => navigation.navigate("ResidentialCustomerDetail", {customerMetadata: c})}>
+                  <Text className="text-lg">{c.firstName} {c.lastName}</Text>
+                </TouchableOpacity>
               ) : (
                 <Text className="text-lg">{c.companyName}</Text>
               )}

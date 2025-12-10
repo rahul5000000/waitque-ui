@@ -83,15 +83,11 @@ export async function refreshAccessToken(refreshToken: string) {
     body: `grant_type=refresh_token&client_id=${CLIENT_ID}&refresh_token=${refreshToken}`,
   });
 
-  console.log(tokenResponse);
-
   if (!tokenResponse.ok) {
     throw new Error("Failed to refresh access token");
   }
 
   const json = tokenResponse.json();
-
-  console.log("Refreshed tokens:", json);
 
   return json;
 }

@@ -13,8 +13,10 @@ import QuestionnaireResponsePageViewScreen from './src/screens/QuestionnaireResp
 import 'react-native-get-random-values';
 import { AuthProvider } from './src/hooks/AuthContext';
 import SettingsScreen from './src/screens/SettingsScreen';
-import FieldHomeScreen from './src/screens/FieldHomeScreen';
-import ManageCustomersScreen from './src/screens/ManageCustomersScreen';
+import FieldHomeScreen from './src/screens/admin/FieldHomeScreen';
+import ManageCustomersScreen from './src/screens/admin/ManageCustomersScreen';
+import ResidentialCustomerDetail from './src/screens/admin/ResidentialCustomerDetail';
+import { setNavigator } from './src/services/navigationService';
 
 const Stack = createNativeStackNavigator();
 
@@ -22,7 +24,7 @@ export default function App() {
   return (
     <AuthProvider>
       <AppProvider>
-        <NavigationContainer>
+        <NavigationContainer ref={(ref) => {setNavigator(ref);}}>
           <Stack.Navigator>
             <Stack.Screen name="Landing" component={LandingScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
@@ -33,6 +35,7 @@ export default function App() {
             <Stack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }} />
             <Stack.Screen name="FieldHome" component={FieldHomeScreen} options={{ headerShown: false }} />
             <Stack.Screen name="ManageCustomers" component={ManageCustomersScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="ResidentialCustomerDetail" component={ResidentialCustomerDetail} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
         <Toast/>

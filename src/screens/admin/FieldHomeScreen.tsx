@@ -1,10 +1,10 @@
 import React from "react";
 import { View, Text, ScrollView } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useCompanyTheme } from "../hooks/useCompanyTheme";import SettingsWidget from "../components/SettingsWidget";
-import Logo from "../components/Logo";
-import { useAppContext } from "../hooks/AppContext";
-import ManageCustomerWidget from "../components/ManageCustomerWidget";
+import { useCompanyTheme } from "../../hooks/useCompanyTheme";import SettingsWidget from "../../components/SettingsWidget";
+import Logo from "../../components/Logo";
+import { useAppContext } from "../../hooks/AppContext";
+import ManageCustomerWidget from "../../components/ManageCustomerWidget";
 ;
 
 export default function FieldHomeScreen({navigation}) {

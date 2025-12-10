@@ -7,6 +7,7 @@ import {
   saveRefreshToken
 } from "./tokenStorage";
 import { refreshAccessToken } from "../authService";
+import { navigate } from "../navigationService";
 
 export type userType = "ADMIN" | "FIELD_USER";
 export const backendApi = axios.create();
@@ -69,6 +70,7 @@ backendApi.interceptors.response.use(
       } catch (err) {
         processQueue(err, null);
         await deleteTokens();
+        navigate("Landing");
         throw err;
       } finally {
         isRefreshing = false;
@@ -81,13 +83,12 @@ backendApi.interceptors.response.use(
 
 async function refreshToken() {
   const refreshToken = await retrieveRefreshToken();
-
   const newTokens = await refreshAccessToken(refreshToken);
 
-  await saveAccessToken(newTokens.accessToken);
-  await saveRefreshToken(newTokens.refreshToken);
+  await saveAccessToken(newTokens.access_token);
+  await saveRefreshToken(newTokens.refresh_token);
 
-  return newTokens.accessToken;
+  return newTokens.access_token;
 }
 
 export default backendApi;
