@@ -46,16 +46,33 @@ export default function AssignQRCodeScreen({navigation, route}) {
       }
     } finally {
       setIsLoading(false);
-      navigation.replace("ResidentialCustomerDetail", {customerMetadata})
+      if(customerMetadata.customerType === "RESIDENTIAL") {
+        navigation.replace("ResidentialCustomerDetail", {customerMetadata})
+      } else if(customerMetadata.customerType === "COMMERCIAL") {
+        navigation.replace("CommercialCustomerDetail", {customerMetadata})
+      } else {
+        throw new Error("Unsupported customerType");
+      }
     }
   }
+
+  const getCustomerDisplayName = () => {
+    console.log(customerMetadata)
+    if (customerMetadata.customerType === "RESIDENTIAL") {
+      return `${customerMetadata.firstName} ${customerMetadata.lastName}`;
+    } else if(customerMetadata.customerType === "COMMERCIAL") {
+      return customerMetadata.companyName;
+    } else {
+      throw new Error("Unsupported customerType");
+    }
+  };
 
   return (
     <SafeAreaView style={[backgroundStyle, { flex: 1 }]}>
       <View style={{ flex: 1}}>
         <View className="pt-8 px-8">
           <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>
-            {customerMetadata.firstName} {customerMetadata.lastName}: Assign QR Code
+            {getCustomerDisplayName()}: Assign QR Code
           </Header>
         </View>
         {isLoading ?
