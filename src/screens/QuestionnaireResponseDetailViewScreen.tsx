@@ -6,10 +6,11 @@ import axios from 'axios';
 import Spinner from '../components/Spinner';
 import Header from '../components/Header';
 import QuestionnaireResponsePageWidget from '../components/QuestionnaireResponsePageWidget';
+import { publicService } from '../services/backend/publicService';
 
 export default function QuestionnaireResponseDetailViewScreen({route, navigation}) {
   const { questionnaireResponse } = route.params;
-  const { backendBaseUrl, qrCode } = useAppContext();
+  const { qrCode } = useAppContext();
 
   const [questionnaireResponseDetails, setQuestionnaireResponseDetails] = useState(null); 
   const [loading, setLoading] = useState(true);
@@ -23,7 +24,7 @@ export default function QuestionnaireResponseDetailViewScreen({route, navigation
       const fetchQuestionnaireResponseDetails = async () => {
         try {
           const [qrDetailResponse] = await Promise.all([
-            axios.get(`${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/questionnaires/*/responses/${questionnaireResponse.id}`),
+            publicService.getQuestionnaireResponse(qrCode, questionnaireResponse.id),
           ]);
   
           console.log('Questionnaire Response Details:', qrDetailResponse.data);

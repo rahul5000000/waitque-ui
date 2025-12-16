@@ -77,6 +77,10 @@ export default function CommercialCustomerDetail({navigation, route}) {
     }
   }
 
+  const handleQuestionnaireClick = (questionnaire, questionnaireResponse) => {
+    navigation.navigate('EditQuestionnaireLanding', {customerMetadata, questionnaire, questionnaireResponse});
+  }
+
   return (
     <SafeAreaView style={[backgroundStyle, { flex: 1 }]}>
       <ScrollView style={{ flex: 1}}>
@@ -160,7 +164,7 @@ export default function CommercialCustomerDetail({navigation, route}) {
           }
 
           {Array.from(questionnaireResponseMap.entries()).map(([id, entry]) => (
-            <TouchableOpacity key={id} className="m-8 rounded-xl" style={mutedWidgetBackgroundStyle}>
+            <TouchableOpacity key={id} className="m-8 rounded-xl" style={mutedWidgetBackgroundStyle} onPress={() => handleQuestionnaireClick(entry.questionnaire, entry.responses.reduce((max, r) => (r.id > max.id ? r : max), questionnaireResponses[0]))}>
               <QuestionnaireResponseStatusWidget questionnaire={entry.questionnaire} questionnaireResponse={entry.responses.reduce((max, r) => (r.id > max.id ? r : max), questionnaireResponses[0])}></QuestionnaireResponseStatusWidget>
             </TouchableOpacity>
           ))}

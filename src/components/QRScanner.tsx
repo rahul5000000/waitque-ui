@@ -44,7 +44,7 @@ export default function QRScanner({onScan}) {
 
   const handleScan = ({ data }) => {
     if (!scanned) {
-      if(data && data.includes("waitque.com")) {
+      if(data && data.includes("waitque")) {
         const url = new URL(data);                         // parse full URL
         const customerCode = url.searchParams.get("customerCode"); 
         const companyId = url.searchParams.get("company"); 

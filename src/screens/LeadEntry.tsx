@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, Alert, ScrollView } from 'react-native';
+import { View, Alert, ScrollView } from 'react-native';
 import Header from '../components/Header';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
@@ -13,10 +13,11 @@ import DecimalLeadQuestion from '../components/Lead/DecimalLeadQuestion';
 import { useAppContext } from '../hooks/AppContext';
 import Toast from 'react-native-toast-message';
 import ImageLeadQuestion from '../components/Lead/ImageLeadQuestion';
+import { publicService } from '../services/backend/publicService';
 
 export default function LeadEntryScreen({route, navigation}) {
   const { flow } = route.params;
-  const { backendBaseUrl, qrCode } = useAppContext();
+  const { qrCode } = useAppContext();
 
   const [flowDetails, setFlowDetails] = useState(null); 
   const [loading, setLoading] = useState(true);
@@ -31,9 +32,7 @@ export default function LeadEntryScreen({route, navigation}) {
   useEffect(() => {
     const fetchFlowDetails = async () => {
       try {
-        const [flowDetailResponse] = await Promise.all([
-          axios.get(`${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/company/leadFlows/${flow.id}`),
-        ]);
+        const flowDetailResponse = await publicService.getFlow(qrCode, flow.id);
 
         console.log('Flow Details:', flowDetailResponse.data);
 
@@ -78,9 +77,7 @@ export default function LeadEntryScreen({route, navigation}) {
     const hasErrors = validateFields();
 
     if(!hasErrors) {
-      const body = {
-        leadFlowId: flowDetails.id,
-        answers: flowDetails.questions.filter(question => question.dataType === "BOOLEAN" || questionAnswerMap[question.id] != null && questionAnswerMap[question.id] != "").map(question => {
+      const answers = flowDetails.questions.filter(question => question.dataType === "BOOLEAN" || questionAnswerMap[question.id] != null && questionAnswerMap[question.id] != "").map(question => {
           switch(question.dataType) {
             case "BOOLEAN": return {
                 leadFlowQuestionId: question.id,
@@ -113,10 +110,9 @@ export default function LeadEntryScreen({route, navigation}) {
                 decimal: questionAnswerMap[question.id]
               };
           }
-        })
-      };
+        });
 
-      axios.post(`${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/leads`, body).then((res) => {
+      publicService.createLead(qrCode, flowDetails.id, answers).then((res) => {
         console.log(res);
         navigation.navigate('LeadConfirmation', {flowDetails});
       });

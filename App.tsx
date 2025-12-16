@@ -19,6 +19,8 @@ import ResidentialCustomerDetail from './src/screens/admin/ResidentialCustomerDe
 import { setNavigator } from './src/services/navigationService';
 import AssignQRCodeScreen from './src/screens/admin/AssignQRCodeScreen';
 import CommercialCustomerDetail from './src/screens/admin/CommercialCustomerDetail';
+import EditQuestionnaireLanding from './src/screens/admin/questionnaire/EditQuestionnaireLanding';
+import EditQuestionnairePage from './src/screens/admin/questionnaire/EditQuestionnairePage';
 
 const Stack = createNativeStackNavigator();
 
@@ -40,6 +42,8 @@ export default function App() {
             <Stack.Screen name="ResidentialCustomerDetail" component={ResidentialCustomerDetail} options={{ headerShown: false }} />
             <Stack.Screen name="AssignQRCodeScreen" component={AssignQRCodeScreen} options={{ headerShown: false }} />
             <Stack.Screen name="CommercialCustomerDetail" component={CommercialCustomerDetail} options={{ headerShown: false }} />
+            <Stack.Screen name="EditQuestionnaireLanding" component={EditQuestionnaireLanding} options={{ headerShown: false }} />
+            <Stack.Screen name="EditQuestionnairePage" component={EditQuestionnairePage} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
         <Toast/>

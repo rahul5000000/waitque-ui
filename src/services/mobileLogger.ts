@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
+import { publicService } from './backend/publicService';
 
 type LogLevel = 'ERROR' | 'WARN' | 'INFO' | 'DEBUG';
 
@@ -40,14 +41,13 @@ function serializeError(err: unknown) {
 }
 
 async function sendLog(opts: {
-  backendBaseUrl: string;
   qrCode: string;
   level: LogLevel;
   page: string;
   message: string;
   json?: any;
 }) {
-  const { backendBaseUrl, qrCode, level, page, message, json } = opts;
+  const { qrCode, level, page, message, json } = opts;
 
   const payload = {
     level,
@@ -60,7 +60,7 @@ async function sendLog(opts: {
 
   try {
     // fire-and-forget, but return the promise so callers can await if they want
-    return axios.post(`${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/mobileLogs`, payload);
+    return publicService.sendMobileLogs(qrCode, payload);
   } catch (err) {
     // Avoid throwing from logger. Best-effort log only.
     // eslint-disable-next-line no-console
@@ -69,28 +69,26 @@ async function sendLog(opts: {
 }
 
 export async function logError(params: {
-  backendBaseUrl: string;
   qrCode: string;
   page?: string;
   message?: string;
   error?: unknown;
   extra?: Record<string, any>;
 }) {
-  const { backendBaseUrl, qrCode, page = 'unknown', message = 'error', error, extra } = params;
+  const { qrCode, page = 'unknown', message = 'error', error, extra } = params;
   const json = { error: serializeError(error), extra };
-  return sendLog({ backendBaseUrl, qrCode, level: 'ERROR', page, message, json });
+  return sendLog({ qrCode, level: 'ERROR', page, message, json });
 }
 
 export async function log(params: {
-  backendBaseUrl: string;
   qrCode: string;
   level: LogLevel;
   page?: string;
   message?: string;
   json?: any;
 }) {
-  const { backendBaseUrl, qrCode, level, page = 'unknown', message = '', json } = params;
-  return sendLog({ backendBaseUrl, qrCode, level, page, message, json });
+  const { qrCode, level, page = 'unknown', message = '', json } = params;
+  return sendLog({ qrCode, level, page, message, json });
 }
 
 export default { logError, log };

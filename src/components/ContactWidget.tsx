@@ -5,6 +5,7 @@ import { useAppContext } from "../hooks/AppContext";
 import { useCompanyTheme } from "../hooks/useCompanyTheme";
 import axios from "axios";
 import Toast from 'react-native-toast-message';
+import { publicService } from "../services/backend/publicService";
 
 export default function ContactWidget() {
   const arrowIcon = "arrow-forward-outline";
@@ -12,7 +13,7 @@ export default function ContactWidget() {
   const messageMode = "message";
   const callMode = "call";
 
-  const {company, backendBaseUrl, qrCode} = useAppContext();
+  const {company, qrCode} = useAppContext();
   const {colors} = useCompanyTheme();
 
   const [message, setMessage] = React.useState(''); 
@@ -32,13 +33,13 @@ export default function ContactWidget() {
     if(mode === callMode) {
       Linking.openURL(`tel:${company.phoneNumber.phoneNumber}`)
     } else {
-      axios.post(`${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/messages`, {"message": message}).then((res) => {
+      publicService.sendMessage(qrCode, message).then((res) => {
         handleTypeMessage('');
         Toast.show({
           type: 'success',
           text1: "Message sent!"
         });
-      })
+      });
     }
   }
 

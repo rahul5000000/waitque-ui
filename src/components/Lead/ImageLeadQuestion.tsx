@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Spinner from "../Spinner";
 import Toast from 'react-native-toast-message';
 import { logError } from '../../services/mobileLogger';
+import { publicService } from "../../services/backend/publicService";
 
 const mimeToExtension = (mime: string) => {
   if (!mime) return 'jpg';
@@ -32,7 +33,7 @@ const mimeToExtension = (mime: string) => {
 
 export default function ImageLeadQuestion({ children, isRequired = false, value, onChange, hasValidationError }) {
   const { mutedWidgetBackgroundStyle, mutedWidgetButtonTextStyle } = useCompanyTheme();
-  const { backendBaseUrl, qrCode } = useAppContext();
+  const { qrCode } = useAppContext();
   const [cdnBaseUrl, setCdnBaseUrl] = useState<string>("");
   const [uploading, setUploading] = useState<boolean>(false);
 
@@ -78,7 +79,6 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
               });
 
       logError({
-        backendBaseUrl,
         qrCode,
         page: 'ImageLeadQuestion',
         message: 'Pick image failed',
@@ -126,7 +126,6 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
               });
 
       logError({
-        backendBaseUrl,
         qrCode,
         page: 'ImageLeadQuestion',
         message: 'Take photo failed',
@@ -156,11 +155,10 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
 
   const removePhoto = () => {
     try {
-      axios.delete(`${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/leads/photoUpload?photoPath=${encodeURIComponent(value)}`);
+      publicService.removePhoto(qrCode, value);
     } catch (error) {
       console.error("Error removing photo:", error);
       logError({
-        backendBaseUrl,
         qrCode,
         page: 'ImageLeadQuestion',
         message: 'Remove photo backend call failed',
@@ -181,11 +179,7 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
       const fileName = `photo_${uuid}.${ext}`;
 
       // 1. Get presigned URL
-      const { data: presigned } = await axios.get(
-        `${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/leads/photoUploadUrl?fileName=${encodeURIComponent(
-          fileName
-        )}&contentType=${encodeURIComponent(mimeType)}`
-      );
+      const { data: presigned } = await publicService.getImageUploadUrl(qrCode, fileName, mimeType);
 
       const url = presigned.url;
       setCdnBaseUrl(presigned.cdnBaseUrl);
@@ -219,7 +213,6 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
               });
       
       logError({
-        backendBaseUrl,
         qrCode,
         page: 'ImageLeadQuestion',
         message: 'Image upload failed',
