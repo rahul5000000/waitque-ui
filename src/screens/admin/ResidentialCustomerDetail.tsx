@@ -12,6 +12,7 @@ import TitledMultilineText from "../../components/TitledMultilineText";
 import QRCodeRender from "../../components/QRCodeRender";
 import { PrimaryButton, WarningButton } from "../../components/Buttons";
 import { Ionicons } from "@expo/vector-icons";
+import { formatUSPhone } from "../../services/formatPhone";
 
 export default function ResidentialCustomerDetail({navigation, route}) {
   const {customerMetadata} = route.params;
@@ -46,15 +47,14 @@ export default function ResidentialCustomerDetail({navigation, route}) {
 
   return (
     <SafeAreaView style={[backgroundStyle, { flex: 1 }]}>
-      <View style={{ flex: 1}}>
-        <View className="pt-8 px-8">
-          <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>
-            Customer Details
-          </Header>
-        </View>
-
+      <View className="pt-8 px-8  mb-6">
+        <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>
+          Customer Details
+        </Header>
+      </View>
+      <ScrollView style={{ flex: 1}}>
         {isLoading ? <Spinner/> : <>
-          <View className="mx-8 mt-6 mb-0">
+          <View className="mx-8 mb-0">
             <Text className="text-2xl font-semibold text-center">{customerMetadata.firstName} {customerMetadata.lastName}</Text>
             <Text className="text-xs text-center" style={mutedWidgetButtonTextStyle}>Residential</Text>
           </View>
@@ -62,7 +62,7 @@ export default function ResidentialCustomerDetail({navigation, route}) {
             <View>
               {customer?.phone.phoneNumber ?
               <View className="pb-3 border-b" style={{borderColor: colors.backgroundColor}}>
-                <TitledText title="Phone">{customer?.phone.phoneNumber}</TitledText>
+                <TitledText title="Phone">{formatUSPhone(customer?.phone.phoneNumber)}</TitledText>
               </View>
               : null}
               {customer?.address ?
@@ -121,7 +121,7 @@ export default function ResidentialCustomerDetail({navigation, route}) {
           </View>
           }
         </>}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   )
 }

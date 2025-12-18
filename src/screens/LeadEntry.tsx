@@ -32,6 +32,8 @@ export default function LeadEntryScreen({route, navigation}) {
   useEffect(() => {
     const fetchFlowDetails = async () => {
       try {
+        setLoading(true);
+
         const flowDetailResponse = await publicService.getFlow(qrCode, flow.id);
 
         console.log('Flow Details:', flowDetailResponse.data);

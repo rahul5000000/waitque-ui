@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
 import { publicService } from './backend/publicService';
+import { userType } from './backend/backendApi';
+import { customerService } from './backend/customerService';
 
 type LogLevel = 'ERROR' | 'WARN' | 'INFO' | 'DEBUG';
 
@@ -68,6 +70,34 @@ async function sendLog(opts: {
   }
 }
 
+async function sendAuthenticatedLog(opts: {
+  userType: userType;
+  level: LogLevel;
+  page: string;
+  message: string;
+  json?: any;
+}) {
+  const { userType, level, page, message, json } = opts;
+
+  const payload = {
+    level,
+    platform: Platform.OS,
+    page,
+    message,
+    json,
+    timestamp: new Date().toISOString(),
+  };
+
+  try {
+    // fire-and-forget, but return the promise so callers can await if they want
+    return customerService.sendMobileLogs(payload, userType);
+  } catch (err) {
+    // Avoid throwing from logger. Best-effort log only.
+    // eslint-disable-next-line no-console
+    console.warn('mobileLogger: failed to send log', err);
+  }
+}
+
 export async function logError(params: {
   qrCode: string;
   page?: string;
@@ -78,6 +108,18 @@ export async function logError(params: {
   const { qrCode, page = 'unknown', message = 'error', error, extra } = params;
   const json = { error: serializeError(error), extra };
   return sendLog({ qrCode, level: 'ERROR', page, message, json });
+}
+
+export async function logAuthenticatedError(params: {
+  userType: userType;
+  page?: string;
+  message?: string;
+  error?: unknown;
+  extra?: Record<string, any>;
+}) {
+  const { userType, page = 'unknown', message = 'error', error, extra } = params;
+  const json = { error: serializeError(error), extra };
+  return sendAuthenticatedLog({ userType, level: 'ERROR', page, message, json });
 }
 
 export async function log(params: {
@@ -91,4 +133,15 @@ export async function log(params: {
   return sendLog({ qrCode, level, page, message, json });
 }
 
-export default { logError, log };
+export async function logAuthenticated(params: {
+  userType: userType;
+  level: LogLevel;
+  page?: string;
+  message?: string;
+  json?: any;
+}) {
+  const { userType, level, page = 'unknown', message = '', json } = params;
+  return sendAuthenticatedLog({ userType, level, page, message, json });
+}
+
+export default { logError, log, logAuthenticatedError, logAuthenticated };

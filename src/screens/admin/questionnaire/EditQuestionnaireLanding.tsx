@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView } from "react-native";
+import React, { use, useEffect, useState } from "react";
+import { View, Text, ScrollView, Alert, Platform } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from "@expo/vector-icons";
 import { useCompanyTheme } from "../../../hooks/useCompanyTheme";
@@ -10,16 +10,20 @@ import { companyService } from "../../../services/backend/companyService";
 import { useAppContext } from "../../../hooks/AppContext";
 import Spinner from "../../../components/Spinner";
 import QuestionnaireResponsePageStatusWidget from "../../../components/admin/QuestionnaireResponsePageStatusWidget";
+import { customerService } from "../../../services/backend/customerService";
 
 export default function EditQuestionnaireLanding({ navigation, route }) {
-  const { customerMetadata, questionnaire, questionnaireResponse } = route.params;
+  const { customerMetadata, questionnaire, questionnaireResponse, questionnaireResponseUpdatedCallback } = route.params;
   const {user} = useAppContext();
   const { colors, backgroundStyle } = useCompanyTheme();
   const [questionnaireDetails, setQuestionnaireDetails] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [questionnaireResponseDetail, setQuestionnaireResponseDetail] = useState(null);
+  const [editModeFlag, setEditModeFlag] = useState(false);
+  const [isActiveFlag, setIsActiveFlag] = useState(false);
 
   const getCustomerDisplayName = () => {
-    console.log(questionnaire)
+    console.log("questionnaire:",questionnaire)
     if (customerMetadata.customerType === "RESIDENTIAL") {
       return `${customerMetadata.firstName} ${customerMetadata.lastName}`;
     } else if (customerMetadata.customerType === "COMMERCIAL") {
@@ -30,19 +34,39 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
   };
 
   useEffect(() => {
-    if(editMode()) {
-      setQuestionnaireDetails(questionnaireResponse.questionnaire)
+    if(questionnaireResponse != null) {
+      fetchQuestionnaireResponseDetails();
     } else {
       fetchQuestionnaireDetails();
     }
   }, []);
 
+  const fetchQuestionnaireResponseDetails = async() => {
+    try{
+      setIsLoading(true);
+      const questionnaireResponseDetailResponse = await customerService.getQuestionnaireResponseDetail(customerMetadata.id, questionnaireResponse.id, user.role);
+      setQuestionnaireDetails(questionnaireResponseDetailResponse.data.questionnaire);
+      setQuestionnaireResponseDetail(questionnaireResponseDetailResponse.data);
+
+      console.log("Questionnaire Response Detail:",questionnaireResponseDetailResponse.data);
+    } catch(error) {
+      console.error(error);
+      Toast.show({
+        type: 'error',
+        text1: "Failed to load questionnaire response details"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   const fetchQuestionnaireDetails = async() => {
     try{
+      setIsLoading(true);
       const questionnaireDetailResponse = await companyService.getQuestionnaire(questionnaire.id, user.role);
       setQuestionnaireDetails(questionnaireDetailResponse.data);
 
-      console.log(questionnaireDetailResponse.data);
+      console.log("Questionnaire Detail:",questionnaireDetailResponse.data);
     } catch(error) {
       console.error(error);
       Toast.show({
@@ -54,9 +78,78 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
     }
   }
 
-  const editMode = () => questionnaireResponse != null;
+  const saveUpdatedQuestionnaireResponseCallback = (questionnaireResponseDetail) => {
+    console.log("Updated questionnaire response detail:", questionnaireResponseDetail);
+    setQuestionnaireResponseDetail(questionnaireResponseDetail);
+    questionnaireResponseUpdatedCallback();
+  }
 
-  const isActive = () => questionnaireResponse?.status === "ACTIVE"
+  useEffect(() => {
+    setEditModeFlag(editMode());
+    setIsActiveFlag(isActive());
+  }, [questionnaireResponseDetail]);
+
+  const editMode = () => questionnaireResponseDetail != null;
+
+  const isActive = () => questionnaireResponseDetail?.status === "ACTIVE";
+
+  const handleInactivate = () => {
+    if(Platform.OS === 'web') {
+      return inactivateQuestionnaireResponse();
+    }
+
+    Alert.alert(
+      'Inactivate '+questionnaire.name + ' ?',
+      'Customers will no longer be able to access this ' + questionnaire.name,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Inactivate', style: 'destructive', onPress: () => inactivateQuestionnaireResponse() },
+      ]
+    );
+  }
+
+  const inactivateQuestionnaireResponse = () => {
+    customerService.deleteQuestionnaireResponse(customerMetadata.id, questionnaireResponse.id, user.role).then((res) => {
+      setQuestionnaireResponseDetail(res.data);
+      questionnaireResponseUpdatedCallback();
+    }).catch((error) => {
+      console.error("Error inactivating questionnaire response:", error);
+      Toast.show({
+        type: 'error',
+        text1: "There was an issue inactivating the questionnaire response.",
+        text2: "Please try again."
+      });
+    });
+  }
+
+  const handleActivate = () => {
+    if(Platform.OS === 'web') {
+      return activateQuestionnaireResponse();
+    }
+
+    Alert.alert(
+      'Activate '+questionnaire.name + '?',
+      'Customers will have access to this ' + questionnaire.name + ' immediately.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Activate', style: 'destructive', onPress: () => activateQuestionnaireResponse() },
+      ]
+    );
+  }
+
+  const activateQuestionnaireResponse = () => {
+    customerService.updateQuestionnaireResponseStatus(customerMetadata.id, questionnaireResponse.id, "ACTIVE", user.role).then((res) => {
+      setQuestionnaireResponseDetail(res.data);
+      questionnaireResponseUpdatedCallback();
+    }).catch((error) => {
+      console.error("Error activating questionnaire response:", error);
+      Toast.show({
+        type: 'error',
+        text1: "There was an issue activating the questionnaire response.",
+        text2: "Please try again."
+      });
+    });
+  }
 
   return (
     <SafeAreaView style={[backgroundStyle, { flex: 1 }]}>
@@ -69,15 +162,18 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
       </View>
       {isLoading ? <Spinner/> :
       <ScrollView className="mt-8 flex-1" style={{ flex: 1 }}>
-        <View className="flex-row flex-wrap justify-center gap-4 mb-8">
+        <View className="flex-row flex-wrap justify-center gap-4 mb-8 px-4">
           {questionnaireDetails?.pages.map((page) => (
             <QuestionnaireResponsePageStatusWidget
               key={page.id}
               navigation={navigation}
               customerMetadata={customerMetadata}
               questionnairePage={page}
-              questionnaireResponse={questionnaireResponse}
-              answers={questionnaireResponse?.answers}
+              questionnaireResponse={questionnaireResponseDetail}
+              answers={questionnaireResponseDetail?.answers?.filter(a => page.questions.some(q => q.id === a.questionnaireQuestionId))}
+              questionnaireId={questionnaireDetails.id}
+              cdnBaseUrl={questionnaireResponseDetail?.cdnBaseUrl}
+              saveUpdatedQuestionnaireResponseCallback={saveUpdatedQuestionnaireResponseCallback}
             />
           ))}
           {questionnaireDetails?.pages.length % 2 === 1 ? (
@@ -86,14 +182,14 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
         </View>
       </ScrollView>
       }
-      {editMode() ? (
+      {editModeFlag ? (
       <View className="m-8">
-        {isActive() ? (
-          <WarningButton onPress={() => console.log('Inactivate')}>
+        {isActiveFlag ? (
+          <WarningButton onPress={handleInactivate}>
             Inactivate
           </WarningButton>
         ) : (
-          <PrimaryButton onPress={() => console.log('Activate')}>
+          <PrimaryButton onPress={handleActivate}>
             Activate
           </PrimaryButton>
         )}

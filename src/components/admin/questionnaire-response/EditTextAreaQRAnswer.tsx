@@ -1,15 +1,15 @@
 import React from "react";
-import { TextInput, View, Text } from "react-native";
+import { TextInput, View } from "react-native";
 import { useCompanyTheme } from "../../../hooks/useCompanyTheme";
 import EditQRAnswerText from "./EditQRAnswerText";
 
-export default function EditTextQRAnswer({children, isRequired = false, value, onChange, hasValidationError}) {
+export default function EditTextAreaQRAnswer({children, isRequired = false, value, onChange, hasValidationError}) {
   const {textInputStyle} = useCompanyTheme();
 
   return (
       <View className="flex">
         <EditQRAnswerText isRequired={isRequired} hasValidationError={hasValidationError}>{children}</EditQRAnswerText>
-        <TextInput style={textInputStyle} onChangeText={onChange} value={value}/>
+        <TextInput style={[textInputStyle, {minHeight: 100, textAlignVertical: "top"}]} onChangeText={onChange} multiline numberOfLines={4} maxLength={1000} value={value}/>
       </View>
     )
 }

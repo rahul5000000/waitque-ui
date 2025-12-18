@@ -3,12 +3,12 @@ import { useCompanyTheme } from '../../hooks/useCompanyTheme';
 import { Text } from "react-native";
 import { TouchableOpacity } from 'react-native';
 
-export default function QuestionnaireResponsePageStatusWidget({navigation, customerMetadata, questionnairePage, questionnaireResponse, answers}) {
+export default function QuestionnaireResponsePageStatusWidget({navigation, customerMetadata, questionnairePage, questionnaireResponse, answers, questionnaireId, cdnBaseUrl, saveUpdatedQuestionnaireResponseCallback}) {
   const {widgetButtonTextStyle, widgetBackgroundStyle, widgetButtonLighterTextStyle} = useCompanyTheme();
 
-  const handleServicePress = async (page, questionnaireResponse, answers) => {
+  const handleServicePress = async (page, questionnaireResponse, answers, questionnaireId, cdnBaseUrl) => {
     console.log(page);
-    navigation.navigate('EditQuestionnairePage', { customerMetadata, page, questionnaireResponse, answers });
+    navigation.navigate('EditQuestionnairePage', { customerMetadata, page, questionnaireResponse, answers, questionnaireId, cdnBaseUrl, saveUpdatedQuestionnaireResponse });
   };
 
   const getAnsweredRatio = () => {
@@ -21,11 +21,18 @@ export default function QuestionnaireResponsePageStatusWidget({navigation, custo
     return `Answered: ${numAnswered}/${questionnairePage.questions.length}`
   }
 
+  const saveUpdatedQuestionnaireResponse = (questionnaireResponse) => {
+    if(saveUpdatedQuestionnaireResponseCallback) {
+      console.log("Saving updated questionnaire response");
+      saveUpdatedQuestionnaireResponseCallback(questionnaireResponse);
+    }
+  }
+
   return (
     <TouchableOpacity
       key={questionnairePage.id}
       className="w-36 h-32 rounded-xl items-center justify-center p-4" style={widgetBackgroundStyle}
-      onPress={() => handleServicePress(questionnairePage, questionnaireResponse, answers)}
+      onPress={() => handleServicePress(questionnairePage, questionnaireResponse, answers, questionnaireId, cdnBaseUrl)}
     >
       <Text className="text-base mt-2 text-center" style={widgetButtonTextStyle}>Edit {questionnairePage.pageTitle}</Text>
       <Text className='text-xs mt-1' style={widgetButtonLighterTextStyle}>{getAnsweredRatio()}</Text>

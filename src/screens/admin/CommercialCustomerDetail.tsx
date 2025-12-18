@@ -14,6 +14,7 @@ import { PrimaryButton, WarningButton } from "../../components/Buttons";
 import { Ionicons } from "@expo/vector-icons";
 import { companyService } from "../../services/backend/companyService";
 import QuestionnaireResponseStatusWidget from "../../components/admin/QuestionnaireResponseStatusWidget";
+import { formatUSPhone } from "../../services/formatPhone";
 
 export default function CommercialCustomerDetail({navigation, route}) {
   const {customerMetadata} = route.params;
@@ -60,11 +61,6 @@ export default function CommercialCustomerDetail({navigation, route}) {
       setQuestionnaires(questionnaires);
       setQuestionnaireResponses(questionnaireResponses);
       setQuestionnaireResponseMap(questionnaireMap);
-
-      console.log("Customer Details: ", customerResponse.data);
-      console.log("Questionnaires", questionnaires);
-      console.log("Questionnaire Responses", questionnaireResponses);
-      console.log("Questionnaire Response Map", questionnaireMap);
     } catch(error) {
       console.error(error);
       Toast.show({
@@ -78,20 +74,24 @@ export default function CommercialCustomerDetail({navigation, route}) {
   }
 
   const handleQuestionnaireClick = (questionnaire, questionnaireResponse) => {
-    navigation.navigate('EditQuestionnaireLanding', {customerMetadata, questionnaire, questionnaireResponse});
+    navigation.navigate('EditQuestionnaireLanding', {customerMetadata, questionnaire, questionnaireResponse, questionnaireResponseUpdatedCallback});
+  }
+
+  const questionnaireResponseUpdatedCallback = () => {
+    console.log("questionnaireResponseUpdatedCallback");
+    fetchCustomerDetails();
   }
 
   return (
     <SafeAreaView style={[backgroundStyle, { flex: 1 }]}>
+      <View className="pt-8 px-8 mb-6">
+        <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>
+          Customer Details
+        </Header>
+      </View>
       <ScrollView style={{ flex: 1}}>
-        <View className="pt-8 px-8">
-          <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>
-            Customer Details
-          </Header>
-        </View>
-
         {isLoading ? <Spinner/> : <>
-          <View className="mx-8 mt-6 mb-0">
+          <View className="mx-8 mb-0">
             <Text className="text-2xl font-semibold text-center">{customerMetadata.companyName}</Text>
             <Text className="text-xs text-center" style={mutedWidgetButtonTextStyle}>Commercial</Text>
           </View>
@@ -104,7 +104,7 @@ export default function CommercialCustomerDetail({navigation, route}) {
               : null}
               {customer?.phone.phoneNumber ?
               <View className="py-3 border-b" style={{borderColor: colors.backgroundColor}}>
-                <TitledText title="Phone">{customer?.phone.phoneNumber}</TitledText>
+                <TitledText title="Phone">{formatUSPhone(customer?.phone.phoneNumber)}</TitledText>
               </View>
               : null}
               {customer?.address ?
