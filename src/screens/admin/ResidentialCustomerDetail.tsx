@@ -31,8 +31,6 @@ export default function ResidentialCustomerDetail({navigation, route}) {
     try{
       const customerResponse = await customerService.getCustomer(customerMetadata.id, user.role);
       setCustomer(customerResponse.data);
-
-      console.log("Customer Details: ", customerResponse.data);
     } catch(error) {
       console.error(error);
       Toast.show({

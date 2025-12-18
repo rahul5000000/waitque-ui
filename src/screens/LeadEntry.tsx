@@ -36,8 +36,6 @@ export default function LeadEntryScreen({route, navigation}) {
 
         const flowDetailResponse = await publicService.getFlow(qrCode, flow.id);
 
-        console.log('Flow Details:', flowDetailResponse.data);
-
         setFlowDetails(flowDetailResponse.data);
 
         const initialAnswers = {};
@@ -115,7 +113,6 @@ export default function LeadEntryScreen({route, navigation}) {
         });
 
       publicService.createLead(qrCode, flowDetails.id, answers).then((res) => {
-        console.log(res);
         navigation.navigate('LeadConfirmation', {flowDetails});
       });
     } else {

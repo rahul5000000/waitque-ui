@@ -201,8 +201,6 @@ export default function EditImageQRAnswer({ children, customerId, isRequired = f
       if(!uploadResult.ok) {
         throw new Error(`Upload to ${url} failed with status ${uploadResult.status} and response ${await uploadResult.text()}`);
       }
-
-      console.log("Uploaded OK", fileName);
       
       onChange(presigned.rawPath);
     } catch (error) {

@@ -27,8 +27,6 @@ export default function QuestionnaireResponseDetailViewScreen({route, navigation
             publicService.getQuestionnaireResponse(qrCode, questionnaireResponse.id),
           ]);
   
-          console.log('Questionnaire Response Details:', qrDetailResponse.data);
-  
           setQuestionnaireResponseDetails(qrDetailResponse.data);
 
           const answeredQuestionIds = qrDetailResponse.data.answers.map(answer => answer.questionnaireQuestionId);
@@ -38,8 +36,6 @@ export default function QuestionnaireResponseDetailViewScreen({route, navigation
               page.questions.some(question => answeredQuestionIds.includes(question.id))
             )
             .sort((a, b) => a.pageNumber - b.pageNumber);
-
-          console.log(pagesWithAnswers);
 
           setPagesWithAnswers(pagesWithAnswers);
         } catch (error) {

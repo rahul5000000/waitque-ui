@@ -33,8 +33,6 @@ export function AuthProvider({ children }) {
     (async () => {
       const storedMode = await getItem("auth_mode");
 
-      console.log("Loaded auth mode from storage:", storedMode);
-
       if (storedMode === "customer") {
         const code = await getItem("customerCode");
         setMode("customer");

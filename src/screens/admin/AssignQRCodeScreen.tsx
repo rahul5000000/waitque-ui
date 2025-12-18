@@ -30,8 +30,6 @@ export default function AssignQRCodeScreen({navigation, route}) {
         text1: "QR Code assigned"
       });
     } catch(error) {
-      console.log("Failed to assign QR Code to customer", error);
-
       if(error?.response?.status === 409) {
         Toast.show({
           type: 'error',
@@ -57,7 +55,6 @@ export default function AssignQRCodeScreen({navigation, route}) {
   }
 
   const getCustomerDisplayName = () => {
-    console.log(customerMetadata)
     if (customerMetadata.customerType === "RESIDENTIAL") {
       return `${customerMetadata.firstName} ${customerMetadata.lastName}`;
     } else if(customerMetadata.customerType === "COMMERCIAL") {

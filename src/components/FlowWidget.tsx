@@ -6,7 +6,6 @@ export default function FlowWidget({navigation, flow}) {
   const {widgetButtonTextStyle, widgetBackgroundStyle} = useCompanyTheme();
 
   const handleServicePress = async (flow) => {
-    console.log(flow);
     navigation.navigate('LeadEntry', { flow });
   };
 

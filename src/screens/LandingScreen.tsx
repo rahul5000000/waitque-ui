@@ -77,12 +77,8 @@ export default function LandingScreen({ navigation }) {
       const user = userResponse.data;
       setUser(user);
 
-      console.log('Fetched user data:', user);
-
       const companyResponse = await companyService.getCompany(user.role);
       setCompany(companyResponse.data);
-
-      console.log('Fetched company data:', companyResponse.data);
 
       await delay(1000);
 

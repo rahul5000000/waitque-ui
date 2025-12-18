@@ -200,8 +200,6 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
       if(!uploadResult.ok) {
         throw new Error(`Upload to ${url} failed with status ${uploadResult.status} and response ${await uploadResult.text()}`);
       }
-
-      console.log("Uploaded OK", fileName);
       
       onChange(presigned.rawPath);
     } catch (error) {

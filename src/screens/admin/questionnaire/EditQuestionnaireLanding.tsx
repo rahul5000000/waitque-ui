@@ -23,7 +23,6 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
   const [isActiveFlag, setIsActiveFlag] = useState(false);
 
   const getCustomerDisplayName = () => {
-    console.log("questionnaire:",questionnaire)
     if (customerMetadata.customerType === "RESIDENTIAL") {
       return `${customerMetadata.firstName} ${customerMetadata.lastName}`;
     } else if (customerMetadata.customerType === "COMMERCIAL") {
@@ -47,8 +46,6 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
       const questionnaireResponseDetailResponse = await customerService.getQuestionnaireResponseDetail(customerMetadata.id, questionnaireResponse.id, user.role);
       setQuestionnaireDetails(questionnaireResponseDetailResponse.data.questionnaire);
       setQuestionnaireResponseDetail(questionnaireResponseDetailResponse.data);
-
-      console.log("Questionnaire Response Detail:",questionnaireResponseDetailResponse.data);
     } catch(error) {
       console.error(error);
       Toast.show({
@@ -65,8 +62,6 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
       setIsLoading(true);
       const questionnaireDetailResponse = await companyService.getQuestionnaire(questionnaire.id, user.role);
       setQuestionnaireDetails(questionnaireDetailResponse.data);
-
-      console.log("Questionnaire Detail:",questionnaireDetailResponse.data);
     } catch(error) {
       console.error(error);
       Toast.show({
@@ -79,7 +74,6 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
   }
 
   const saveUpdatedQuestionnaireResponseCallback = (questionnaireResponseDetail) => {
-    console.log("Updated questionnaire response detail:", questionnaireResponseDetail);
     setQuestionnaireResponseDetail(questionnaireResponseDetail);
     questionnaireResponseUpdatedCallback();
   }

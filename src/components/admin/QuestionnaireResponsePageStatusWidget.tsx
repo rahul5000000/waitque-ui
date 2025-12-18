@@ -7,7 +7,6 @@ export default function QuestionnaireResponsePageStatusWidget({navigation, custo
   const {widgetButtonTextStyle, widgetBackgroundStyle, widgetButtonLighterTextStyle} = useCompanyTheme();
 
   const handleServicePress = async (page, questionnaireResponse, answers, questionnaireId, cdnBaseUrl) => {
-    console.log(page);
     navigation.navigate('EditQuestionnairePage', { customerMetadata, page, questionnaireResponse, answers, questionnaireId, cdnBaseUrl, saveUpdatedQuestionnaireResponse });
   };
 
@@ -23,7 +22,6 @@ export default function QuestionnaireResponsePageStatusWidget({navigation, custo
 
   const saveUpdatedQuestionnaireResponse = (questionnaireResponse) => {
     if(saveUpdatedQuestionnaireResponseCallback) {
-      console.log("Saving updated questionnaire response");
       saveUpdatedQuestionnaireResponseCallback(questionnaireResponse);
     }
   }

@@ -78,7 +78,6 @@ export default function CommercialCustomerDetail({navigation, route}) {
   }
 
   const questionnaireResponseUpdatedCallback = () => {
-    console.log("questionnaireResponseUpdatedCallback");
     fetchCustomerDetails();
   }
 

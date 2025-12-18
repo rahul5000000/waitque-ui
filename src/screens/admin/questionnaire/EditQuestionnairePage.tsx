@@ -114,9 +114,6 @@ export default function EditQuestionnairePage({ navigation, route }) {
 
   const handleSave = () => {
     const answers = buildAnswersForCurrentPage();
-
-    console.log("Prepared answers:", answers);
-
     customerService.createQuestionnaireResponse(customerMetadata.id, questionnaireId, answers, 'INACTIVE', user.role).then((res) => {
       saveUpdatedQuestionnaireResponse(res.data);
       Toast.show({
@@ -141,9 +138,7 @@ export default function EditQuestionnairePage({ navigation, route }) {
     const allAnswers = questionnaireResponse.answers.filter(answer => !page.questions.some(q => q.id === answer.questionnaireQuestionId));
 
     allAnswers.push(...currentPageAnswers);
-
-    console.log("All answers:", allAnswers);
-
+    
     customerService.updateQuestionnaireResponse(customerMetadata.id, questionnaireId, questionnaireResponse.id, allAnswers, questionnaireResponse.status, user.role).then((res) => {
       saveUpdatedQuestionnaireResponse(res.data);
       Toast.show({

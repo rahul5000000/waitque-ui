@@ -14,8 +14,6 @@ export default function QuestionnaireResponsePageViewScreen({route, navigation})
     navigation.navigate('QuestionnaireResponseDetailView', { questionnaireResponse });
   };
 
-  console.log(questionnaireResponse);
-
   return (
     <SafeAreaView style={[backgroundStyle, { flex: 1 }]}>
       <View className="p-8 flex-1">
@@ -31,7 +29,7 @@ export default function QuestionnaireResponsePageViewScreen({route, navigation})
                 groups[group].push(question);
                 return groups;
               }, {})).map(([groupName, questions]) => ({groupName, questions})).map((groupedQuestions) => {
-                return (<QRAnswerGroup key={groupedQuestions.groupName} questions={groupedQuestions.questions} answers={answers.filter(answer => (groupedQuestions.questions as any[]).some(q => q.id === answer.questionnaireQuestionId))}>{groupedQuestions.groupName}</QRAnswerGroup>)
+                return (<QRAnswerGroup key={groupedQuestions.groupName} questions={groupedQuestions.questions} cdnBaseUrl={cdnBaseUrl} answers={answers.filter(answer => (groupedQuestions.questions as any[]).some(q => q.id === answer.questionnaireQuestionId))}>{groupedQuestions.groupName}</QRAnswerGroup>)
               })
             }
           </ScrollView>
