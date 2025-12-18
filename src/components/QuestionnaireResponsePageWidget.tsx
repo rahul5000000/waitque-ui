@@ -2,12 +2,12 @@ import React from 'react';
 import { useCompanyTheme } from '../hooks/useCompanyTheme';
 import HomeWidget from './HomeWidget';
 
-export default function QuestionnaireResponsePageWidget({navigation, questionnairePage, questionnaireResponse, answers}) {
+export default function QuestionnaireResponsePageWidget({navigation, questionnairePage, questionnaireResponse, answers, cdnBaseUrl}) {
   const {widgetButtonTextStyle, widgetBackgroundStyle} = useCompanyTheme();
 
-  const handleServicePress = async (page, questionnaireResponse, answers) => {
+  const handleServicePress = async (page, questionnaireResponse, answers, cdnBaseUrl) => {
     console.log(page);
-    navigation.navigate('QuestionnairePageView', { page, questionnaireResponse, answers });
+    navigation.navigate('QuestionnairePageView', { page, questionnaireResponse, answers, cdnBaseUrl });
   };
 
   return (
@@ -15,6 +15,6 @@ export default function QuestionnaireResponsePageWidget({navigation, questionnai
       uniqKey={questionnairePage.id}
       textStyle={widgetButtonTextStyle} 
       backgroundStyle={widgetBackgroundStyle} 
-      onPress={() => handleServicePress(questionnairePage, questionnaireResponse, answers)}>View {questionnairePage.pageTitle}</HomeWidget>
+      onPress={() => handleServicePress(questionnairePage, questionnaireResponse, answers, cdnBaseUrl)}>View {questionnairePage.pageTitle}</HomeWidget>
   )
 }

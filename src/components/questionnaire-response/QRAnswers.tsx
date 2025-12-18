@@ -3,8 +3,9 @@ import TextQRAnswer from "./TextQRAnswer";
 import { Text, View } from "react-native";
 import BooleanQRAnswer from "./BooleanQRAnswer";
 import PhoneNumberQRAnswer from "./PhoneNumberQRAnswer";
+import ImageQRAnswer from "./ImageQRAnswer";
 
-export default function QRAnswers({questions, answers}) {
+export default function QRAnswers({questions, answers, cdnBaseUrl}) {
   return (
     <View className="border-1px border-solid">
       {questions.map((question) => {
@@ -19,7 +20,7 @@ export default function QRAnswers({questions, answers}) {
             case "DECIMAL": return (<TextQRAnswer key={question.id} value={answer.decimal}>{question.question}</TextQRAnswer>)
             case "TEXTAREA": return (<TextQRAnswer key={question.id} value={answer.paragraph}>{question.question}</TextQRAnswer>)
             case "EMAIL": return (<TextQRAnswer key={question.id} value={answer.email}>{question.question}</TextQRAnswer>)
-            case "IMAGE": return null
+            case "IMAGE": return (<ImageQRAnswer key={question.id} url={answer.url} cdnBaseUrl={cdnBaseUrl}>{question.question}</ImageQRAnswer>)
             default: return null
           }
         } else {

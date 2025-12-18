@@ -70,6 +70,7 @@ export default function QuestionnaireResponseDetailViewScreen({route, navigation
                       questionnairePage={page}
                       questionnaireResponse={questionnaireResponse}
                       answers={questionnaireResponseDetails.answers}
+                      cdnBaseUrl={questionnaireResponseDetails.cdnBaseUrl}
                     />
                   ))}
                   {pagesWithAnswers.length % 2 === 1 ? (
