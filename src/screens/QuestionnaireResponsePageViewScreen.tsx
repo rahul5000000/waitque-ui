@@ -10,15 +10,15 @@ export default function QuestionnaireResponsePageViewScreen({route, navigation})
   const { page, questionnaireResponse, answers, cdnBaseUrl } = route.params;
   const {backgroundStyle} = useCompanyTheme();
 
-  const handleGoBack = async (questionnaireResponse) => {
-    navigation.navigate('QuestionnaireResponseDetailView', { questionnaireResponse });
-  };
+  // const handleGoBack = async (questionnaireResponse) => {
+  //   navigation.navigate('QuestionnaireResponseDetailView', { questionnaireResponse });
+  // };
 
   return (
     <SafeAreaView style={[backgroundStyle, { flex: 1 }]}>
       <View className="p-8 flex-1">
         <View className='flex-1'>
-          <Header icon="arrow-back-outline" iconOnPress={() => handleGoBack(questionnaireResponse)}>{questionnaireResponse.questionnaireName} / {page.pageTitle}</Header>
+          <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>{questionnaireResponse.questionnaireName} / {page.pageTitle}</Header>
           <ScrollView className='mt-2 flex-1'>
             {<QRAnswers questions={page.questions.filter((question) => !question.questionGroup)} answers={answers} cdnBaseUrl={cdnBaseUrl}></QRAnswers>}
             {Object.entries(page.questions.filter((question) => question.questionGroup).reduce((groups, question) => {

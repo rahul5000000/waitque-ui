@@ -7,6 +7,8 @@ import Spinner from '../components/Spinner';
 import Header from '../components/Header';
 import QuestionnaireResponsePageWidget from '../components/QuestionnaireResponsePageWidget';
 import { publicService } from '../services/backend/publicService';
+import { logError } from '../services/mobileLogger';
+import Toast from 'react-native-toast-message';
 
 export default function QuestionnaireResponseDetailViewScreen({route, navigation}) {
   const { questionnaireResponse } = route.params;
@@ -15,10 +17,6 @@ export default function QuestionnaireResponseDetailViewScreen({route, navigation
   const [questionnaireResponseDetails, setQuestionnaireResponseDetails] = useState(null); 
   const [loading, setLoading] = useState(true);
   const [pagesWithAnswers, setPagesWithAnswers] = useState(null);
-
-  const handleGoBack = async () => {
-    navigation.navigate('Home');
-  };
 
   useEffect(() => {
       const fetchQuestionnaireResponseDetails = async () => {
@@ -39,8 +37,22 @@ export default function QuestionnaireResponseDetailViewScreen({route, navigation
 
           setPagesWithAnswers(pagesWithAnswers);
         } catch (error) {
-          console.error('Error fetching questionnaire response details:', error);
-          Alert.alert('Error', 'Failed to load questionnaire response.');
+          logError({
+            qrCode,
+            page: 'QuestionnaireResponseDetailViewScreen',
+            message: 'Failed to fetch questionnaire response details',
+            error,
+          }).catch(() => {
+            // swallow errors from logger
+          });
+
+          Toast.show({
+            type: 'error',
+            text1: 'Failed to load data',
+            text2: 'Please try again later',
+          });
+
+          navigation.goBack();
         } finally {
           setLoading(false);
         }
@@ -55,7 +67,7 @@ export default function QuestionnaireResponseDetailViewScreen({route, navigation
           {loading ? <Spinner message="Loading data"></Spinner> : 
             <View className='flex-1'>
               <View>
-                <Header icon="arrow-back-outline" iconOnPress={() => handleGoBack()}>{questionnaireResponseDetails.questionnaire.name}</Header>
+                <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>{questionnaireResponseDetails.questionnaire.name}</Header>
               </View>
               <ScrollView className="mt-8 flex-1" style={{ flex: 1 }}>
                 <View className="flex-row flex-wrap justify-center gap-4 mb-8">

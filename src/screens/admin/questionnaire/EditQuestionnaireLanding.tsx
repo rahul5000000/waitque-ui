@@ -11,11 +11,12 @@ import { useAppContext } from "../../../hooks/AppContext";
 import Spinner from "../../../components/Spinner";
 import QuestionnaireResponsePageStatusWidget from "../../../components/admin/QuestionnaireResponsePageStatusWidget";
 import { customerService } from "../../../services/backend/customerService";
+import { logAuthenticatedError } from "../../../services/mobileLogger";
 
 export default function EditQuestionnaireLanding({ navigation, route }) {
   const { customerMetadata, questionnaire, questionnaireResponse, questionnaireResponseUpdatedCallback } = route.params;
   const {user} = useAppContext();
-  const { colors, backgroundStyle } = useCompanyTheme();
+  const { backgroundStyle } = useCompanyTheme();
   const [questionnaireDetails, setQuestionnaireDetails] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [questionnaireResponseDetail, setQuestionnaireResponseDetail] = useState(null);
@@ -47,11 +48,21 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
       setQuestionnaireDetails(questionnaireResponseDetailResponse.data.questionnaire);
       setQuestionnaireResponseDetail(questionnaireResponseDetailResponse.data);
     } catch(error) {
-      console.error(error);
+      logAuthenticatedError({
+        userType: user.role,
+        page: 'EditQuestionnaireLanding',
+        message: 'Failed to load questionnaire response details',
+        error,
+      }).catch(() => {
+        // swallow errors from logger
+      });
+
       Toast.show({
         type: 'error',
         text1: "Failed to load questionnaire response details"
       });
+
+      navigation.goBack();
     } finally {
       setIsLoading(false);
     }
@@ -63,11 +74,21 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
       const questionnaireDetailResponse = await companyService.getQuestionnaire(questionnaire.id, user.role);
       setQuestionnaireDetails(questionnaireDetailResponse.data);
     } catch(error) {
-      console.error(error);
+      logAuthenticatedError({
+        userType: user.role,
+        page: 'EditQuestionnaireLanding',
+        message: 'Failed to load questionnaire details',
+        error,
+      }).catch(() => {
+        // swallow errors from logger
+      });
+
       Toast.show({
         type: 'error',
         text1: "Failed to load questionnaire details"
       });
+
+      navigation.goBack();
     } finally {
       setIsLoading(false);
     }
@@ -93,11 +114,11 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
     }
 
     Alert.alert(
-      'Inactivate '+questionnaire.name + ' ?',
+      'Deactivate '+questionnaire.name + ' ?',
       'Customers will no longer be able to access this ' + questionnaire.name,
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Inactivate', style: 'destructive', onPress: () => inactivateQuestionnaireResponse() },
+        { text: 'Deactivate', style: 'destructive', onPress: () => inactivateQuestionnaireResponse() },
       ]
     );
   }
@@ -107,10 +128,18 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
       setQuestionnaireResponseDetail(res.data);
       questionnaireResponseUpdatedCallback();
     }).catch((error) => {
-      console.error("Error inactivating questionnaire response:", error);
+      logAuthenticatedError({
+        userType: user.role,
+        page: 'EditQuestionnaireLanding',
+        message: 'Failed to inactivate questionnaire response',
+        error,
+      }).catch(() => {
+        // swallow errors from logger
+      });
+
       Toast.show({
         type: 'error',
-        text1: "There was an issue inactivating the questionnaire response.",
+        text1: "There was an issue deactivating the questionnaire response.",
         text2: "Please try again."
       });
     });
@@ -136,7 +165,15 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
       setQuestionnaireResponseDetail(res.data);
       questionnaireResponseUpdatedCallback();
     }).catch((error) => {
-      console.error("Error activating questionnaire response:", error);
+      logAuthenticatedError({
+        userType: user.role,
+        page: 'EditQuestionnaireLanding',
+        message: 'Failed to activate questionnaire response',
+        error,
+      }).catch(() => {
+        // swallow errors from logger
+      });
+
       Toast.show({
         type: 'error',
         text1: "There was an issue activating the questionnaire response.",
@@ -180,7 +217,7 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
       <View className="m-8">
         {isActiveFlag ? (
           <WarningButton onPress={handleInactivate}>
-            Inactivate
+            Deactivate
           </WarningButton>
         ) : (
           <PrimaryButton onPress={handleActivate}>

@@ -16,6 +16,7 @@ import EditTextAreaQRAnswer from "../../../components/admin/questionnaire-respon
 import EditPhoneQRAnswer from "../../../components/admin/questionnaire-response/EditPhoneQRAnswer";
 import EditEmailQRAnswer from "../../../components/admin/questionnaire-response/EditEmailQRAnswer";
 import { customerService } from "../../../services/backend/customerService";
+import { logAuthenticatedError } from "../../../services/mobileLogger";
 
 export default function EditQuestionnairePage({ navigation, route }) {
   const { customerMetadata, page, questionnaireResponse, answers, questionnaireId, cdnBaseUrl, saveUpdatedQuestionnaireResponse } = route.params;
@@ -116,13 +117,17 @@ export default function EditQuestionnairePage({ navigation, route }) {
     const answers = buildAnswersForCurrentPage();
     customerService.createQuestionnaireResponse(customerMetadata.id, questionnaireId, answers, 'INACTIVE', user.role).then((res) => {
       saveUpdatedQuestionnaireResponse(res.data);
-      Toast.show({
-        type: 'success',
-        text1: "Questionnaire response saved successfully"
-      });
       navigation.goBack();
     }).catch((error) => {
-      console.error(error);
+      logAuthenticatedError({
+        userType: user.role,
+        page: 'EditQuestionnairePage',
+        message: 'Failed to save questionnaire response',
+        error,
+      }).catch(() => {
+        // swallow errors from logger
+      });
+
       Toast.show({
         type: 'error',
         text1: "Failed to save questionnaire response"
@@ -141,13 +146,17 @@ export default function EditQuestionnairePage({ navigation, route }) {
     
     customerService.updateQuestionnaireResponse(customerMetadata.id, questionnaireId, questionnaireResponse.id, allAnswers, questionnaireResponse.status, user.role).then((res) => {
       saveUpdatedQuestionnaireResponse(res.data);
-      Toast.show({
-        type: 'success',
-        text1: "Questionnaire response updated successfully"
-      });
       navigation.goBack();
     }).catch((error) => {
-      console.error(error);
+      logAuthenticatedError({
+        userType: user.role,
+        page: 'EditQuestionnairePage',
+        message: 'Failed to update questionnaire response',
+        error,
+      }).catch(() => {
+        // swallow errors from logger
+      });
+
       Toast.show({
         type: 'error',
         text1: "Failed to update questionnaire response"
@@ -163,7 +172,7 @@ export default function EditQuestionnairePage({ navigation, route }) {
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
       <View>
-        <View className="pt-8 px-8">
+        <View className="pt-8 pb-4 px-8">
           <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>
             {getCustomerDisplayName()} / {page.pageTitle}
           </Header>
@@ -184,7 +193,6 @@ export default function EditQuestionnairePage({ navigation, route }) {
                 <Text className="text-[18px] font-bold" style={primaryButtonTextStyle}>{groupedQuestions.groupName}</Text>
                 {(groupedQuestions.questions as any).map(renderQuestion)}
               </View>
-            // <QRAnswerGroup questions={groupedQuestions.questions} answers={answers.filter(answer => (groupedQuestions.questions as any[]).some(q => q.id === answer.questionnaireQuestionId))}>{groupedQuestions.groupName}</QRAnswerGroup>
             )
           })
         }

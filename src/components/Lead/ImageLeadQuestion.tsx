@@ -71,7 +71,6 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
 
       return resized;
     } catch (error) {
-      console.error("Error picking image:", error);
       Toast.show({
                 type: 'error',
                 text1: "There was an issue selecting the photo.",
@@ -118,7 +117,6 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
 
       return resized;
     } catch (error) {
-      console.error("Error taking photo:", error);
       Toast.show({
                 type: 'error',
                 text1: "There was an issue taking the photo.",
@@ -157,7 +155,12 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
     try {
       publicService.removePhoto(qrCode, value);
     } catch (error) {
-      console.error("Error removing photo:", error);
+      Toast.show({
+        type: 'error',
+        text1: "There was an issue removing the photo.",
+        text2: "Please try again."
+      });
+
       logError({
         qrCode,
         page: 'ImageLeadQuestion',
@@ -203,7 +206,6 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
       
       onChange(presigned.rawPath);
     } catch (error) {
-      console.error("Error uploading image:", error);
       Toast.show({
                 type: 'error',
                 text1: "There was an issue attaching the photo.",

@@ -14,6 +14,7 @@ import { useAppContext } from '../hooks/AppContext';
 import Toast from 'react-native-toast-message';
 import ImageLeadQuestion from '../components/Lead/ImageLeadQuestion';
 import { publicService } from '../services/backend/publicService';
+import { logError } from '../services/mobileLogger';
 
 export default function LeadEntryScreen({route, navigation}) {
   const { flow } = route.params;
@@ -24,10 +25,6 @@ export default function LeadEntryScreen({route, navigation}) {
   const [questionAnswerMap, setQuestionAnswerMap] = useState({});
   const [questionValidationErrorMap, setQuestionValidationErrorMap] = useState({});
   const [hasActiveValidationError, setHasActiveValidationError] = useState(false);
-
-  const handleGoBack = async () => {
-    navigation.navigate('Home');
-  };
 
   useEffect(() => {
     const fetchFlowDetails = async () => {
@@ -52,8 +49,22 @@ export default function LeadEntryScreen({route, navigation}) {
         setQuestionAnswerMap(initialAnswers);
         setQuestionValidationErrorMap(initialValidationErrors);
       } catch (error) {
-        console.error('Error fetching lead flow details:', error);
-        Alert.alert('Error', 'Failed to load lead flow details.');
+        logError({
+          qrCode,
+          page: 'LeadEntry',
+          message: 'Failed to fetch flow details',
+          error,
+        }).catch(() => {
+          // swallow errors from logger
+        });
+
+        Toast.show({
+          type: 'error',
+          text1: "Failed to load data",
+          text2: "Please try again later"
+        });
+
+        navigation.goBack();
       } finally {
         setLoading(false);
       }
@@ -74,51 +85,68 @@ export default function LeadEntryScreen({route, navigation}) {
   };
 
   const handleSubmit = () => {
-    const hasErrors = validateFields();
+    try {
+      const hasErrors = validateFields();
 
-    if(!hasErrors) {
-      const answers = flowDetails.questions.filter(question => question.dataType === "BOOLEAN" || questionAnswerMap[question.id] != null && questionAnswerMap[question.id] != "").map(question => {
-          switch(question.dataType) {
-            case "BOOLEAN": return {
-                leadFlowQuestionId: question.id,
-                dataType: question.dataType,
-                enabled: questionAnswerMap[question.id]
-              };
-            case "TEXT": return {
-                leadFlowQuestionId: question.id,
-                dataType: question.dataType,
-                text: questionAnswerMap[question.id]
-              };
-            case "TEXTAREA": return {
-                leadFlowQuestionId: question.id,
-                dataType: question.dataType,
-                paragraph: questionAnswerMap[question.id]
-              };
-            case "IMAGE": return {
-                leadFlowQuestionId: question.id,
-                dataType: question.dataType,
-                url: questionAnswerMap[question.id]
-              };
-            case "NUMBER": return {
-                leadFlowQuestionId: question.id,
-                dataType: question.dataType,
-                number: questionAnswerMap[question.id]
-              };
-            case "DECIMAL": return {
-                leadFlowQuestionId: question.id,
-                dataType: question.dataType,
-                decimal: questionAnswerMap[question.id]
-              };
-          }
+      if(!hasErrors) {
+        const answers = flowDetails.questions.filter(question => question.dataType === "BOOLEAN" || questionAnswerMap[question.id] != null && questionAnswerMap[question.id] != "").map(question => {
+            switch(question.dataType) {
+              case "BOOLEAN": return {
+                  leadFlowQuestionId: question.id,
+                  dataType: question.dataType,
+                  enabled: questionAnswerMap[question.id]
+                };
+              case "TEXT": return {
+                  leadFlowQuestionId: question.id,
+                  dataType: question.dataType,
+                  text: questionAnswerMap[question.id]
+                };
+              case "TEXTAREA": return {
+                  leadFlowQuestionId: question.id,
+                  dataType: question.dataType,
+                  paragraph: questionAnswerMap[question.id]
+                };
+              case "IMAGE": return {
+                  leadFlowQuestionId: question.id,
+                  dataType: question.dataType,
+                  url: questionAnswerMap[question.id]
+                };
+              case "NUMBER": return {
+                  leadFlowQuestionId: question.id,
+                  dataType: question.dataType,
+                  number: questionAnswerMap[question.id]
+                };
+              case "DECIMAL": return {
+                  leadFlowQuestionId: question.id,
+                  dataType: question.dataType,
+                  decimal: questionAnswerMap[question.id]
+                };
+            }
+          });
+
+        publicService.createLead(qrCode, flowDetails.id, answers).then((res) => {
+          navigation.navigate('LeadConfirmation', {flowDetails});
         });
-
-      publicService.createLead(qrCode, flowDetails.id, answers).then((res) => {
-        navigation.navigate('LeadConfirmation', {flowDetails});
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: "Please fix fields with errors"
+        });
+      }
+    } catch (error) {
+      logError({
+        qrCode,
+        page: 'LeadEntry',
+        message: 'Failed to create lead',
+        error,
+      }).catch(() => {
+        // swallow errors from logger
       });
-    } else {
+
       Toast.show({
         type: 'error',
-        text1: "Please fix fields with errors"
+        text1: "Failed to submit request",
+        text2: "Please try again later"
       });
     }
   }
@@ -146,7 +174,7 @@ export default function LeadEntryScreen({route, navigation}) {
       <View className="p-8 flex-1">
         {loading ? <Spinner message="Loading data"></Spinner> : 
         <View className='flex-1'>
-          <Header icon="arrow-back-outline" iconOnPress={() => handleGoBack()}>{flowDetails.title}</Header>
+          <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>{flowDetails.title}</Header>
           <ScrollView className='flex-1'>
             {flowDetails.questions.map((question) => {
             switch(question.dataType) {

@@ -72,7 +72,6 @@ export default function EditImageQRAnswer({ children, customerId, isRequired = f
 
       return resized;
     } catch (error) {
-      console.error("Error picking image:", error);
       Toast.show({
                 type: 'error',
                 text1: "There was an issue selecting the photo.",
@@ -119,7 +118,6 @@ export default function EditImageQRAnswer({ children, customerId, isRequired = f
 
       return resized;
     } catch (error) {
-      console.error("Error taking photo:", error);
       Toast.show({
                 type: 'error',
                 text1: "There was an issue taking the photo.",
@@ -158,7 +156,12 @@ export default function EditImageQRAnswer({ children, customerId, isRequired = f
     try {
       customerService.removePhoto(customerId, value);
     } catch (error) {
-      console.error("Error removing photo:", error);
+      Toast.show({
+        type: 'error',
+        text1: "There was an issue removing the photo.",
+        text2: "Please try again."
+      });
+
       logAuthenticatedError({
         userType: user.role,
         page: 'EditImageQRAnswer',
@@ -204,7 +207,6 @@ export default function EditImageQRAnswer({ children, customerId, isRequired = f
       
       onChange(presigned.rawPath);
     } catch (error) {
-      console.error("Error uploading image:", error);
       Toast.show({
                 type: 'error',
                 text1: "There was an issue attaching the photo.",

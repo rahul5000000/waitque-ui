@@ -15,6 +15,7 @@ import { companyService } from '../services/backend/companyService';
 import { logoutUser } from "../services/authService";
 import { PrimaryButton, SecondaryButton } from '../components/Buttons';
 import Toast from 'react-native-toast-message';
+import { logError } from '../services/mobileLogger';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -62,7 +63,15 @@ export default function LandingScreen({ navigation }) {
         routes: [{ name: "Home" }],
       });
     } catch (error) {
-      console.error('Error fetching customer:', error);
+      logError({
+        qrCode,
+        page: 'LandingScreen',
+        message: 'Failed to fetch customer data',
+        error,
+      }).catch(() => {
+        // swallow errors from logger
+      });
+
       await logoutUser(mode, logout);
       await clearContext();
     } finally {
@@ -91,7 +100,6 @@ export default function LandingScreen({ navigation }) {
         throw new Error("Unsupported user role");
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
       await logoutUser(mode, logout);
       await clearContext();
     } finally {

@@ -8,6 +8,8 @@ import { useAppContext } from "../../hooks/AppContext";
 import Spinner from "../../components/Spinner";
 import { PrimaryButton } from "../../components/Buttons";
 import { Ionicons } from "@expo/vector-icons";
+import { logAuthenticatedError } from "../../services/mobileLogger";
+import Toast from "react-native-toast-message";
 
 export default function ManageCustomersScreen({ navigation }) {
   const { colors, textInputStyle } = useCompanyTheme();
@@ -41,14 +43,25 @@ export default function ManageCustomersScreen({ navigation }) {
       const response = await customerService.customerSearch(term, user.role);
       setResults(response.data.customers || []);
 
-    } catch (err) {
-      console.error("Search error:", err);
+    } catch (error) {
+      logAuthenticatedError({
+        userType: user.role,
+        page: 'ManageCustomersScreen',
+        message: 'Failed to search customers',
+        error,
+      }).catch(() => {
+        // swallow errors from logger
+      });
+
+      Toast.show({
+        text1: "Failed to search customers",
+        text2: "Please try again later",
+        type: "error",
+      });
     } finally {
       setIsSearching(false);
     }
   };
-
-  const handleGoBack = () => navigation.goBack();
 
   const handleAddNewCustomer = () => {
     // Navigate to Add New Customer Screen
@@ -62,7 +75,7 @@ export default function ManageCustomersScreen({ navigation }) {
               keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
             >
         <View className="pt-8 px-8">
-          <Header icon="arrow-back-outline" iconOnPress={handleGoBack}>
+          <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>
             Search Customers
           </Header>
 

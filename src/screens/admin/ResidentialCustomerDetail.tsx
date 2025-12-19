@@ -13,6 +13,7 @@ import QRCodeRender from "../../components/QRCodeRender";
 import { PrimaryButton, WarningButton } from "../../components/Buttons";
 import { Ionicons } from "@expo/vector-icons";
 import { formatUSPhone } from "../../services/formatPhone";
+import { logAuthenticatedError } from "../../services/mobileLogger";
 
 export default function ResidentialCustomerDetail({navigation, route}) {
   const {customerMetadata} = route.params;
@@ -32,7 +33,15 @@ export default function ResidentialCustomerDetail({navigation, route}) {
       const customerResponse = await customerService.getCustomer(customerMetadata.id, user.role);
       setCustomer(customerResponse.data);
     } catch(error) {
-      console.error(error);
+      logAuthenticatedError({
+        userType: user.role,
+        page: 'ResidentialCustomerDetail',
+        message: 'Failed to load customer details',
+        error,
+      }).catch(() => {
+        // swallow errors from logger
+      });
+            
       Toast.show({
         type: 'error',
         text1: "Failed to load customer details"
