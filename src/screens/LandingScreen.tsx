@@ -26,8 +26,12 @@ export default function LandingScreen({ navigation }) {
   const [modalVisible, setModalVisible] = React.useState(false);
   const [manualCustomerCode, setManualCustomerCode] = React.useState('');
 
+  console.log("Rendering LandingScreen");
+
   useEffect(() => {
     if (!isLoaded) return;              // Wait until SecureStore is loaded
+
+    console.log("Auth is loaded. Mode is", mode);
 
     if (mode === "customer") {
       fetchCustomerData(customerCode);
@@ -40,6 +44,7 @@ export default function LandingScreen({ navigation }) {
 
   const fetchCustomerData = async (qrCode) => {
     try {
+      console.log("Fetching customer data with QR code:", qrCode);
       setIsFetching(true);
       loginCustomer(qrCode);
 
@@ -58,11 +63,14 @@ export default function LandingScreen({ navigation }) {
 
       await delay(500);
 
+      console.log("Navigating to home screen");
+
       navigation.reset({
         index: 0,
         routes: [{ name: "Home" }],
       });
     } catch (error) {
+      console.error("Failed to fetch customer data:", error);
       logError({
         qrCode,
         page: 'LandingScreen',
@@ -81,6 +89,7 @@ export default function LandingScreen({ navigation }) {
 
   const fetchUserData = async () => {
     try {
+      console.log("Fetching user data");
       setIsFetching(true);
       const userResponse = await userService.getMe();
       const user = userResponse.data;
@@ -91,6 +100,8 @@ export default function LandingScreen({ navigation }) {
 
       await delay(1000);
 
+      console.log("Navigating to field home screen");
+
       if(user.role == "FIELD_USER") {
         navigation.reset({
           index: 0,
@@ -100,6 +111,7 @@ export default function LandingScreen({ navigation }) {
         throw new Error("Unsupported user role");
       }
     } catch (error) {
+      console.error("Failed to fetch user data:", error);
       await logoutUser(mode, logout);
       await clearContext();
     } finally {
