@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, Alert, ScrollView } from 'react-native';
+import { View, Alert, ScrollView } from 'react-native';
 import Header from '../components/Header';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
@@ -13,10 +13,12 @@ import DecimalLeadQuestion from '../components/Lead/DecimalLeadQuestion';
 import { useAppContext } from '../hooks/AppContext';
 import Toast from 'react-native-toast-message';
 import ImageLeadQuestion from '../components/Lead/ImageLeadQuestion';
+import { publicService } from '../services/backend/publicService';
+import { logError } from '../services/mobileLogger';
 
 export default function LeadEntryScreen({route, navigation}) {
   const { flow } = route.params;
-  const { backendBaseUrl, qrCode } = useAppContext();
+  const { qrCode } = useAppContext();
 
   const [flowDetails, setFlowDetails] = useState(null); 
   const [loading, setLoading] = useState(true);
@@ -24,18 +26,12 @@ export default function LeadEntryScreen({route, navigation}) {
   const [questionValidationErrorMap, setQuestionValidationErrorMap] = useState({});
   const [hasActiveValidationError, setHasActiveValidationError] = useState(false);
 
-  const handleGoBack = async () => {
-    navigation.navigate('Home');
-  };
-
   useEffect(() => {
     const fetchFlowDetails = async () => {
       try {
-        const [flowDetailResponse] = await Promise.all([
-          axios.get(`${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/company/leadFlows/${flow.id}`),
-        ]);
+        setLoading(true);
 
-        console.log('Flow Details:', flowDetailResponse.data);
+        const flowDetailResponse = await publicService.getFlow(qrCode, flow.id);
 
         setFlowDetails(flowDetailResponse.data);
 
@@ -53,8 +49,22 @@ export default function LeadEntryScreen({route, navigation}) {
         setQuestionAnswerMap(initialAnswers);
         setQuestionValidationErrorMap(initialValidationErrors);
       } catch (error) {
-        console.error('Error fetching lead flow details:', error);
-        Alert.alert('Error', 'Failed to load lead flow details.');
+        logError({
+          qrCode,
+          page: 'LeadEntry',
+          message: 'Failed to fetch flow details',
+          error,
+        }).catch(() => {
+          // swallow errors from logger
+        });
+
+        Toast.show({
+          type: 'error',
+          text1: "Failed to load data",
+          text2: "Please try again later"
+        });
+
+        navigation.goBack();
       } finally {
         setLoading(false);
       }
@@ -75,55 +85,68 @@ export default function LeadEntryScreen({route, navigation}) {
   };
 
   const handleSubmit = () => {
-    const hasErrors = validateFields();
+    try {
+      const hasErrors = validateFields();
 
-    if(!hasErrors) {
-      const body = {
-        leadFlowId: flowDetails.id,
-        answers: flowDetails.questions.filter(question => question.dataType === "BOOLEAN" || questionAnswerMap[question.id] != null && questionAnswerMap[question.id] != "").map(question => {
-          switch(question.dataType) {
-            case "BOOLEAN": return {
-                leadFlowQuestionId: question.id,
-                dataType: question.dataType,
-                enabled: questionAnswerMap[question.id]
-              };
-            case "TEXT": return {
-                leadFlowQuestionId: question.id,
-                dataType: question.dataType,
-                text: questionAnswerMap[question.id]
-              };
-            case "TEXTAREA": return {
-                leadFlowQuestionId: question.id,
-                dataType: question.dataType,
-                paragraph: questionAnswerMap[question.id]
-              };
-            case "IMAGE": return {
-                leadFlowQuestionId: question.id,
-                dataType: question.dataType,
-                url: questionAnswerMap[question.id]
-              };
-            case "NUMBER": return {
-                leadFlowQuestionId: question.id,
-                dataType: question.dataType,
-                number: questionAnswerMap[question.id]
-              };
-            case "DECIMAL": return {
-                leadFlowQuestionId: question.id,
-                dataType: question.dataType,
-                decimal: questionAnswerMap[question.id]
-              };
-          }
-        })
-      };
+      if(!hasErrors) {
+        const answers = flowDetails.questions.filter(question => question.dataType === "BOOLEAN" || questionAnswerMap[question.id] != null && questionAnswerMap[question.id] != "").map(question => {
+            switch(question.dataType) {
+              case "BOOLEAN": return {
+                  leadFlowQuestionId: question.id,
+                  dataType: question.dataType,
+                  enabled: questionAnswerMap[question.id]
+                };
+              case "TEXT": return {
+                  leadFlowQuestionId: question.id,
+                  dataType: question.dataType,
+                  text: questionAnswerMap[question.id]
+                };
+              case "TEXTAREA": return {
+                  leadFlowQuestionId: question.id,
+                  dataType: question.dataType,
+                  paragraph: questionAnswerMap[question.id]
+                };
+              case "IMAGE": return {
+                  leadFlowQuestionId: question.id,
+                  dataType: question.dataType,
+                  url: questionAnswerMap[question.id]
+                };
+              case "NUMBER": return {
+                  leadFlowQuestionId: question.id,
+                  dataType: question.dataType,
+                  number: questionAnswerMap[question.id]
+                };
+              case "DECIMAL": return {
+                  leadFlowQuestionId: question.id,
+                  dataType: question.dataType,
+                  decimal: questionAnswerMap[question.id]
+                };
+            }
+          });
 
-      axios.post(`${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/leads`, body).then((res) => {
-        console.log(res);
-        navigation.navigate('LeadConfirmation', {flowDetails});
+        publicService.createLead(qrCode, flowDetails.id, answers).then((res) => {
+          navigation.navigate('LeadConfirmation', {flowDetails});
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: "Please fix fields with errors"
+        });
+      }
+    } catch (error) {
+      logError({
+        qrCode,
+        page: 'LeadEntry',
+        message: 'Failed to create lead',
+        error,
+      }).catch(() => {
+        // swallow errors from logger
       });
-    } else {
+
       Toast.show({
         type: 'error',
-        text1: "Please fix fields with errors"
+        text1: "Failed to submit request",
+        text2: "Please try again later"
       });
     }
   }
@@ -151,7 +174,7 @@ export default function LeadEntryScreen({route, navigation}) {
       <View className="p-8 flex-1">
         {loading ? <Spinner message="Loading data"></Spinner> : 
         <View className='flex-1'>
-          <Header icon="arrow-back-outline" iconOnPress={() => handleGoBack()}>{flowDetails.title}</Header>
+          <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>{flowDetails.title}</Header>
           <ScrollView className='flex-1'>
             {flowDetails.questions.map((question) => {
             switch(question.dataType) {

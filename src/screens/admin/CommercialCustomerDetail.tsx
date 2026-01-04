@@ -14,6 +14,8 @@ import { PrimaryButton, WarningButton } from "../../components/Buttons";
 import { Ionicons } from "@expo/vector-icons";
 import { companyService } from "../../services/backend/companyService";
 import QuestionnaireResponseStatusWidget from "../../components/admin/QuestionnaireResponseStatusWidget";
+import { formatUSPhone } from "../../services/formatPhone";
+import { logAuthenticatedError } from "../../services/mobileLogger";
 
 export default function CommercialCustomerDetail({navigation, route}) {
   const {customerMetadata} = route.params;
@@ -60,38 +62,49 @@ export default function CommercialCustomerDetail({navigation, route}) {
       setQuestionnaires(questionnaires);
       setQuestionnaireResponses(questionnaireResponses);
       setQuestionnaireResponseMap(questionnaireMap);
-
-      console.log("Customer Details: ", customerResponse.data);
-      console.log("Questionnaires", questionnaires);
-      console.log("Questionnaire Responses", questionnaireResponses);
-      console.log("Questionnaire Response Map", questionnaireMap);
     } catch(error) {
-      console.error(error);
+      logAuthenticatedError({
+        userType: user.role,
+        page: 'CommercialCustomerDetail',
+        message: 'Failed to load customer details',
+        error,
+      }).catch(() => {
+        // swallow errors from logger
+      });
+
       Toast.show({
         type: 'error',
         text1: "Failed to load customer details"
-      })
+      });
+      
       navigation.goBack();
     } finally {
       setIsLoading(false);
     }
   }
 
+  const handleQuestionnaireClick = (questionnaire, questionnaireResponse) => {
+    navigation.navigate('EditQuestionnaireLanding', {customerMetadata, questionnaire, questionnaireResponse, questionnaireResponseUpdatedCallback});
+  }
+
+  const questionnaireResponseUpdatedCallback = () => {
+    fetchCustomerDetails();
+  }
+
   return (
     <SafeAreaView style={[backgroundStyle, { flex: 1 }]}>
+      <View className="pt-8 px-8 mb-6">
+        <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>
+          Customer Details
+        </Header>
+      </View>
       <ScrollView style={{ flex: 1}}>
-        <View className="pt-8 px-8">
-          <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>
-            Customer Details
-          </Header>
-        </View>
-
         {isLoading ? <Spinner/> : <>
-          <View className="mx-8 mt-6 mb-0">
+          <View className="mx-8 mb-0">
             <Text className="text-2xl font-semibold text-center">{customerMetadata.companyName}</Text>
             <Text className="text-xs text-center" style={mutedWidgetButtonTextStyle}>Commercial</Text>
           </View>
-          <View className="p-4 m-8 mt-6 rounded-xl" style={mutedWidgetBackgroundStyle}>
+          <View className="p-4 mx-8 mt-6 rounded-xl" style={mutedWidgetBackgroundStyle}>
             <View>
               {customer?.firstName && customer?.lastName ?
               <View className="pb-3 border-b" style={{borderColor: colors.backgroundColor}}>
@@ -100,7 +113,7 @@ export default function CommercialCustomerDetail({navigation, route}) {
               : null}
               {customer?.phone.phoneNumber ?
               <View className="py-3 border-b" style={{borderColor: colors.backgroundColor}}>
-                <TitledText title="Phone">{customer?.phone.phoneNumber}</TitledText>
+                <TitledText title="Phone">{formatUSPhone(customer?.phone.phoneNumber)}</TitledText>
               </View>
               : null}
               {customer?.address ?
@@ -122,9 +135,15 @@ export default function CommercialCustomerDetail({navigation, route}) {
             </View>
           </View>
 
+          {Array.from(questionnaireResponseMap.entries()).map(([id, entry]) => (
+            <TouchableOpacity key={id} className="m-8 mt-10 rounded-xl" style={mutedWidgetBackgroundStyle} onPress={() => handleQuestionnaireClick(entry.questionnaire, entry.responses.reduce((max, r) => (r.id > max.id ? r : max), questionnaireResponses[0]))}>
+              <QuestionnaireResponseStatusWidget questionnaire={entry.questionnaire} questionnaireResponse={entry.responses.reduce((max, r) => (r.id > max.id ? r : max), questionnaireResponses[0])}></QuestionnaireResponseStatusWidget>
+            </TouchableOpacity>
+          ))}
+
           {customer?.frontEndLink ?
           <View 
-            className="mx-8 mt-2 p-6 rounded-2xl"
+            className="mx-8 mt-2 mb-4 p-6 rounded-2xl"
             style={mutedWidgetBackgroundStyle}
           >
             <Text className="text-lg font-semibold mb-3 text-center">
@@ -154,16 +173,10 @@ export default function CommercialCustomerDetail({navigation, route}) {
           </View>
 
           :
-          <View className="mx-8">
+          <View className="mx-8 mb-4">
             <PrimaryButton onPress={() => {navigation.navigate('AssignQRCodeScreen', {customerMetadata})}}>Assign QR Code</PrimaryButton>
           </View>
           }
-
-          {Array.from(questionnaireResponseMap.entries()).map(([id, entry]) => (
-            <TouchableOpacity key={id} className="m-8 rounded-xl" style={mutedWidgetBackgroundStyle}>
-              <QuestionnaireResponseStatusWidget questionnaire={entry.questionnaire} questionnaireResponse={entry.responses.reduce((max, r) => (r.id > max.id ? r : max), questionnaireResponses[0])}></QuestionnaireResponseStatusWidget>
-            </TouchableOpacity>
-          ))}
         </>}
       </ScrollView>
     </SafeAreaView>

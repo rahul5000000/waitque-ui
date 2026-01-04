@@ -6,27 +6,24 @@ import axios from 'axios';
 import Spinner from '../components/Spinner';
 import Header from '../components/Header';
 import QuestionnaireResponsePageWidget from '../components/QuestionnaireResponsePageWidget';
+import { publicService } from '../services/backend/publicService';
+import { logError } from '../services/mobileLogger';
+import Toast from 'react-native-toast-message';
 
 export default function QuestionnaireResponseDetailViewScreen({route, navigation}) {
   const { questionnaireResponse } = route.params;
-  const { backendBaseUrl, qrCode } = useAppContext();
+  const { qrCode } = useAppContext();
 
   const [questionnaireResponseDetails, setQuestionnaireResponseDetails] = useState(null); 
   const [loading, setLoading] = useState(true);
   const [pagesWithAnswers, setPagesWithAnswers] = useState(null);
 
-  const handleGoBack = async () => {
-    navigation.navigate('Home');
-  };
-
   useEffect(() => {
       const fetchQuestionnaireResponseDetails = async () => {
         try {
           const [qrDetailResponse] = await Promise.all([
-            axios.get(`${backendBaseUrl}/api/public/customers/qrCode/${qrCode}/questionnaires/*/responses/${questionnaireResponse.id}`),
+            publicService.getQuestionnaireResponse(qrCode, questionnaireResponse.id),
           ]);
-  
-          console.log('Questionnaire Response Details:', qrDetailResponse.data);
   
           setQuestionnaireResponseDetails(qrDetailResponse.data);
 
@@ -38,12 +35,24 @@ export default function QuestionnaireResponseDetailViewScreen({route, navigation
             )
             .sort((a, b) => a.pageNumber - b.pageNumber);
 
-          console.log(pagesWithAnswers);
-
           setPagesWithAnswers(pagesWithAnswers);
         } catch (error) {
-          console.error('Error fetching questionnaire response details:', error);
-          Alert.alert('Error', 'Failed to load questionnaire response.');
+          logError({
+            qrCode,
+            page: 'QuestionnaireResponseDetailViewScreen',
+            message: 'Failed to fetch questionnaire response details',
+            error,
+          }).catch(() => {
+            // swallow errors from logger
+          });
+
+          Toast.show({
+            type: 'error',
+            text1: 'Failed to load data',
+            text2: 'Please try again later',
+          });
+
+          navigation.goBack();
         } finally {
           setLoading(false);
         }
@@ -58,7 +67,7 @@ export default function QuestionnaireResponseDetailViewScreen({route, navigation
           {loading ? <Spinner message="Loading data"></Spinner> : 
             <View className='flex-1'>
               <View>
-                <Header icon="arrow-back-outline" iconOnPress={() => handleGoBack()}>{questionnaireResponseDetails.questionnaire.name}</Header>
+                <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>{questionnaireResponseDetails.questionnaire.name}</Header>
               </View>
               <ScrollView className="mt-8 flex-1" style={{ flex: 1 }}>
                 <View className="flex-row flex-wrap justify-center gap-4 mb-8">
@@ -69,6 +78,7 @@ export default function QuestionnaireResponseDetailViewScreen({route, navigation
                       questionnairePage={page}
                       questionnaireResponse={questionnaireResponse}
                       answers={questionnaireResponseDetails.answers}
+                      cdnBaseUrl={questionnaireResponseDetails.cdnBaseUrl}
                     />
                   ))}
                   {pagesWithAnswers.length % 2 === 1 ? (

@@ -7,7 +7,6 @@ export const AppProvider = ({ children }) => {
   const [company, setCompany] = useState(null);
   const [customer, setCustomer] = useState(null);
   const [flows, setFlows] = useState(null);
-  const [backendBaseUrl, setBackendBaseUrl] = useState(null);
   const [qrCode, setQrCode] = useState(null);
   const [questionnaires, setQuestionnaires] = useState(null);
 
@@ -18,7 +17,6 @@ export const AppProvider = ({ children }) => {
     setCompany(null);
     setCustomer(null);
     setFlows(null);
-    setBackendBaseUrl(null);
     setQrCode(null);
     setQuestionnaires(null);
     setUser(null);
@@ -30,7 +28,6 @@ export const AppProvider = ({ children }) => {
       company, setCompany, 
       customer, setCustomer, 
       flows, setFlows, 
-      backendBaseUrl, setBackendBaseUrl, 
       qrCode, setQrCode, 
       questionnaires, setQuestionnaires,
       user, setUser}}>

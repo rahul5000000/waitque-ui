@@ -6,7 +6,6 @@ export default function QuestionnaireResponseWidget({navigation, questionnaireRe
   const {questionnaireWidgetButtonTextStyle, questionnaireWidgetBackgroundStyle} = useCompanyTheme();
 
   const handleServicePress = async (questionnaireResponse) => {
-    console.log(questionnaireResponse);
     navigation.navigate('QuestionnaireResponseDetailView', { questionnaireResponse });
   };
 

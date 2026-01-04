@@ -68,10 +68,14 @@ backendApi.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return backendApi(originalRequest);
       } catch (err) {
-        processQueue(err, null);
-        await deleteTokens();
+        try {
+          processQueue(err, null);
+          await deleteTokens();
+        } catch (e) {
+          console.error("Failed to cleanup state on auth failure:", e);
+        }
+        
         navigate("Landing");
-        throw err;
       } finally {
         isRefreshing = false;
       }

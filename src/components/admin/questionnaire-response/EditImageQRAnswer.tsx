@@ -1,17 +1,18 @@
 import React, {useState} from "react";
 import { Image, TextInput, TouchableOpacity, View, Alert, Platform } from "react-native";
-import LeadQuestionText from "./LeadQuestionText";
-import { useCompanyTheme } from "../../hooks/useCompanyTheme";
+import { useCompanyTheme } from "../../../hooks/useCompanyTheme";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from "expo-image-manipulator";
-import { useAppContext } from "../../hooks/AppContext";
+import { useAppContext } from "../../../hooks/AppContext";
 import axios from "axios";
 import { v4 as uuidv4 } from 'uuid';
-import Spinner from "../Spinner";
+import Spinner from "../../Spinner";
 import Toast from 'react-native-toast-message';
-import { logError } from '../../services/mobileLogger';
-import { publicService } from "../../services/backend/publicService";
+import { logAuthenticatedError } from '../../../services/mobileLogger';
+import { publicService } from "../../../services/backend/publicService";
+import EditQRAnswerText from "./EditQRAnswerText";
+import { customerService } from "../../../services/backend/customerService";
 
 const mimeToExtension = (mime: string) => {
   if (!mime) return 'jpg';
@@ -31,11 +32,11 @@ const mimeToExtension = (mime: string) => {
   return parts.length > 1 ? parts[1] : 'jpg';
 };
 
-export default function ImageLeadQuestion({ children, isRequired = false, value, onChange, hasValidationError }) {
+export default function EditImageQRAnswer({ children, customerId, isRequired = false, value, onChange, hasValidationError, initCdnBaseUrl = "" }) {
   const { mutedWidgetBackgroundStyle, mutedWidgetButtonTextStyle } = useCompanyTheme();
-  const { qrCode } = useAppContext();
-  const [cdnBaseUrl, setCdnBaseUrl] = useState<string>("");
+  const [cdnBaseUrl, setCdnBaseUrl] = useState<string>(initCdnBaseUrl);
   const [uploading, setUploading] = useState<boolean>(false);
+  const {user} = useAppContext();
 
   const handleUpload = async () => {
     const photo = await pickImage();
@@ -77,9 +78,9 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
                 text2: "Please try again."
               });
 
-      logError({
-        qrCode,
-        page: 'ImageLeadQuestion',
+      logAuthenticatedError({
+        userType: user.role,
+        page: 'EditImageQRAnswer',
         message: 'Pick image failed',
         error,
       }).catch(() => {
@@ -123,9 +124,9 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
                 text2: "Please try again."
               });
 
-      logError({
-        qrCode,
-        page: 'ImageLeadQuestion',
+      logAuthenticatedError({
+        userType: user.role,
+        page: 'EditImageQRAnswer',
         message: 'Take photo failed',
         error,
       }).catch(() => {
@@ -153,7 +154,7 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
 
   const removePhoto = () => {
     try {
-      publicService.removePhoto(qrCode, value);
+      customerService.removePhoto(customerId, value);
     } catch (error) {
       Toast.show({
         type: 'error',
@@ -161,9 +162,9 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
         text2: "Please try again."
       });
 
-      logError({
-        qrCode,
-        page: 'ImageLeadQuestion',
+      logAuthenticatedError({
+        userType: user.role,
+        page: 'EditImageQRAnswer',
         message: 'Remove photo backend call failed',
         error,
       }).catch(() => {
@@ -182,7 +183,7 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
       const fileName = `photo_${uuid}.${ext}`;
 
       // 1. Get presigned URL
-      const { data: presigned } = await publicService.getImageUploadUrl(qrCode, fileName, mimeType);
+      const { data: presigned } = await customerService.getImageUploadUrl(customerId, fileName, mimeType);
 
       const url = presigned.url;
       setCdnBaseUrl(presigned.cdnBaseUrl);
@@ -212,9 +213,9 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
                 text2: "Please try again."
               });
       
-      logError({
-        qrCode,
-        page: 'ImageLeadQuestion',
+      logAuthenticatedError({
+        userType: user.role,
+        page: 'EditImageQRAnswer',
         message: 'Image upload failed',
         error,
       }).catch(() => {
@@ -229,7 +230,7 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
 
   return (
     <View className="flex">
-      <LeadQuestionText isRequired={isRequired} hasValidationError={hasValidationError}>{children}</LeadQuestionText>
+      <EditQRAnswerText isRequired={isRequired} hasValidationError={hasValidationError}>{children}</EditQRAnswerText>
       {!value ? (!uploading ? <View className="flex-row">
         <TouchableOpacity
           className="rounded-xl items-center justify-center p-12 mr-2 flex-1" style={mutedWidgetBackgroundStyle}
@@ -248,7 +249,7 @@ export default function ImageLeadQuestion({ children, isRequired = false, value,
           {imageUrl ? (
             <Image source={{ uri: imageUrl }} className="h-48 rounded-xl" />
           ) : (
-            <View className="h-48 bg-gray-200 rounded-xl" />
+            <View className="h-48 bg-gray-200 rounded-xl" ></View>
           )}
           <TouchableOpacity
             accessibilityLabel="Remove photo"

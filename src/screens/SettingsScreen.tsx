@@ -15,10 +15,6 @@ export default function SettingsScreen({navigation}) {
   const {mode, logout} = useAuth();
   const {clearContext} = useAppContext();
 
-  const handleGoBack = async () => {
-    navigation.goBack();
-  };
-
   const handleLogout = async () => {
     await logoutUser(mode, logout);
     await clearContext();
@@ -33,7 +29,7 @@ export default function SettingsScreen({navigation}) {
     <SafeAreaView className='flex-1'>
       <ScrollView className="flex-1">
         <View className="p-8">
-          <Header icon="arrow-back-outline" iconOnPress={() => handleGoBack()}>Settings</Header>
+          <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>Settings</Header>
           <WarningButton onPress={handleLogout}>Logout</WarningButton>
         </View>
       </ScrollView>
