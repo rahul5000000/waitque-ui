@@ -1,8 +1,8 @@
 import {backendApi, userType, mapUserTypeToPath} from "./backendApi";
 import qs from "qs";
 
-const CUSTOMER_BASE = "http://10.0.0.236:8083";
-// const CUSTOMER_BASE = "http://waitque-alb-1208411922.us-east-1.elb.amazonaws.com/3";
+// const CUSTOMER_BASE = "http://10.0.0.236:8083";
+const CUSTOMER_BASE = "https://api.waitque.com/3";
 
 export type questionnaireResponseStatus = "ACTIVE" | "INACTIVE";
 
