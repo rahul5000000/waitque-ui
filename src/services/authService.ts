@@ -2,7 +2,7 @@ import * as AuthSession from "expo-auth-session";
 import { retrieveRefreshToken } from "./backend/tokenStorage";
 
 const KEYCLOAK_BASE =
-  "http://waitque-alb-1208411922.us-east-1.elb.amazonaws.com/realms/rrs-waitque/protocol/openid-connect";
+  "https://auth.waitque.com/realms/rrs-waitque/protocol/openid-connect";
 const CLIENT_ID = "mobile-app";
 
 export const discovery = {
