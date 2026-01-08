@@ -30,7 +30,9 @@ export default function SettingsScreen({navigation}) {
       <ScrollView className="flex-1">
         <View className="p-8">
           <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>Settings</Header>
+          <View className="mt-4">
           <WarningButton onPress={handleLogout}>Logout</WarningButton>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -64,7 +64,7 @@ export default function ManageCustomersScreen({ navigation }) {
   };
 
   const handleAddNewCustomer = () => {
-    // Navigate to Add New Customer Screen
+    navigation.navigate("NewCustomerScreen");
   }
 
   return (

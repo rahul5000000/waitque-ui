@@ -32,9 +32,9 @@ export default function CommercialCustomerDetail({navigation, route}) {
   }, []);
 
   const formatCustomerCode = (code?: string) => {
-  if (!code || code.length !== 8) return code;
-  return `${code.slice(0, 4)}-${code.slice(4)}`;
-};
+    if (!code || code.length !== 8) return code;
+    return `${code.slice(0, 4)}-${code.slice(4)}`;
+  };
 
 
   const fetchCustomerDetails = async() => {
@@ -180,7 +180,6 @@ export default function CommercialCustomerDetail({navigation, route}) {
                {formatCustomerCode(customer?.customerCode)}
             </Text>
             
-
             <WarningButton onPress={() => {navigation.navigate('AssignQRCodeScreen', {customerMetadata})}}>
               <Ionicons name="ban" size={16}/> Assign new QR Code
             </WarningButton>

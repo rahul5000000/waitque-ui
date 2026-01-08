@@ -1,8 +1,8 @@
 import {backendApi, userType, mapUserTypeToPath} from "./backendApi";
 import qs from "qs";
 
-const CUSTOMER_BASE = "http://10.0.0.151:8083";
-// const CUSTOMER_BASE = "https://api.waitque.com/3";
+// const CUSTOMER_BASE = "http://10.0.0.151:8083";
+const CUSTOMER_BASE = "https://api.waitque.com/3";
 
 export type questionnaireResponseStatus = "ACTIVE" | "INACTIVE";
 
@@ -55,5 +55,6 @@ export const customerService = {
   updateQuestionnaireResponseStatus: (customerId: number, questionnaireResponseId: number, status: questionnaireResponseStatus, userType: userType) => {
     const payload = { status: status };
     return backendApi.patch(`${CUSTOMER_BASE}/api/${mapUserTypeToPath(userType)}/customers/${customerId}/questionnaires/*/responses/${questionnaireResponseId}/status`, payload);
-  }
+  },
+  createCustomer: (customerData: any, userType: userType) => backendApi.post(`${CUSTOMER_BASE}/api/${mapUserTypeToPath(userType)}/customers`, customerData),
 };
