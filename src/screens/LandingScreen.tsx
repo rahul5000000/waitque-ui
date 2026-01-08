@@ -24,7 +24,9 @@ export default function LandingScreen({ navigation }) {
   const [isFetching, setIsFetching] = React.useState(false);
   const { isLoaded, mode, customerCode, loginCustomer, loginAdmin, logout } = useAuth();
   const [modalVisible, setModalVisible] = React.useState(false);
-  const [manualCustomerCode, setManualCustomerCode] = React.useState('');
+
+  const [manualCustomerCode1, setManualCustomerCode1] = React.useState('');
+  const [manualCustomerCode2, setManualCustomerCode2] = React.useState('');
 
   console.log("Rendering LandingScreen");
 
@@ -148,16 +150,27 @@ export default function LandingScreen({ navigation }) {
   }, [response]);
 
   const manuallyLogin = async () => {
-    if(manualCustomerCode === "123-123") {
-      //await fetchCustomerData("abb751db-5624-4c0a-ac05-af8291e2effa");
-      await fetchCustomerData("3e9cb878-8176-422e-9dd0-61d5023b2f28");
-      setModalVisible(false);
-    } else {
+    const fullCustomerCode = (manualCustomerCode1.trim()) + (manualCustomerCode2.trim());
+    publicService.searchQrCodes(fullCustomerCode).then(async (res) => {
+      console.log(res.data);
+      if(res.data && res.data.length > 0) {
+        const qrCode = res.data[0].qrCode;
+        await fetchCustomerData(qrCode);
+        setModalVisible(false);
+      } else {
+
+        Toast.show({
+          type: "error",
+          text1: "Customer not found"
+        });
+      }
+    }).catch((error) => {
+      console.error("Error searching QR codes:", error);
       Toast.show({
         type: "error",
         text1: "Customer not found"
       });
-    }
+    });
   }
 
   return (
@@ -175,7 +188,11 @@ export default function LandingScreen({ navigation }) {
             <View style={{flex:1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(128,128,128,0.25)'}}>
               <View className='m-8 p-6 rounded-xl bg-white' style={{width: '80%'}}>
                 <Text className='mb-2'>Enter Customer Code:</Text>
-                <TextInput autoComplete='off' autoCorrect={false} inputMode='numeric' style={{borderColor: "#ddd", borderWidth: 2, padding: 12, marginBottom: 12, borderRadius: 5, backgroundColor: 'white', color: 'black', fontWeight: 'bold', fontSize: 16, textAlign: 'center'}} onChangeText={(customerCode) => setManualCustomerCode(customerCode)} value={manualCustomerCode}/>
+                <View className='flex-row justify-center'>
+                  <TextInput className='flex-1' autoComplete='off' autoCorrect={false} style={{borderColor: "#ddd", borderWidth: 2, padding: 12, marginBottom: 12, borderRadius: 5, backgroundColor: 'white', color: 'black', fontWeight: 'bold', fontSize: 16, textAlign: 'center'}} onChangeText={(customerCode) => setManualCustomerCode1(customerCode)} value={manualCustomerCode1}/>
+                  <Text className='font-bold text-3xl'> - </Text>
+                  <TextInput className='flex-1' autoComplete='off' autoCorrect={false} style={{borderColor: "#ddd", borderWidth: 2, padding: 12, marginBottom: 12, borderRadius: 5, backgroundColor: 'white', color: 'black', fontWeight: 'bold', fontSize: 16, textAlign: 'center'}} onChangeText={(customerCode) => setManualCustomerCode2(customerCode)} value={manualCustomerCode2}/>
+                </View>
                 <PrimaryButton onPress={manuallyLogin}>Login</PrimaryButton>
                 <SecondaryButton onPress={() => setModalVisible(false)}>Cancel</SecondaryButton>
               </View>

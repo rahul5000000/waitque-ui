@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// const CUSTOMER_BASE = "http://10.0.0.236:8083";
-const CUSTOMER_BASE = "https://api.waitque.com/3";
+const CUSTOMER_BASE = "http://10.0.0.151:8083";
+// const CUSTOMER_BASE = "https://api.waitque.com/3";
 
 export const backendApi = axios.create();
 
@@ -17,4 +17,9 @@ export const publicService = {
   getImageUploadUrl: (qrCode: string, fileName: string, mimeType: string) => backendApi.get(`${CUSTOMER_BASE}/api/public/customers/qrCode/${qrCode}/leads/photoUploadUrl?fileName=${encodeURIComponent(fileName)}&contentType=${encodeURIComponent(mimeType)}`),
   createLead: (qrCode: string, flowId: number, answers: any[]) => backendApi.post(`${CUSTOMER_BASE}/api/public/customers/qrCode/${qrCode}/leads`, {leadFlowId: flowId, answers: answers}),
   sendMobileLogs: (qrCode: string, payload: any) => backendApi.post(`${CUSTOMER_BASE}/api/public/customers/qrCode/${qrCode}/mobileLogs`, payload),
+  searchQrCodes: (customerCode: string) => backendApi.post(`${CUSTOMER_BASE}/api/public/qrCodes/search?customerCode=${encodeURIComponent(customerCode)}`, {}, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }),
 };

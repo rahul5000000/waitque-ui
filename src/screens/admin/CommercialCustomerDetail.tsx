@@ -31,6 +31,12 @@ export default function CommercialCustomerDetail({navigation, route}) {
     fetchCustomerDetails();
   }, []);
 
+  const formatCustomerCode = (code?: string) => {
+  if (!code || code.length !== 8) return code;
+  return `${code.slice(0, 4)}-${code.slice(4)}`;
+};
+
+
   const fetchCustomerDetails = async() => {
     setIsLoading(true);
     try{
@@ -166,6 +172,14 @@ export default function CommercialCustomerDetail({navigation, route}) {
                 </QRCodeRender>
               </View>
             </View>
+
+            <Text className="text-sm text-center">
+              Manual Customer Code (case sensitive):
+            </Text>
+            <Text className="text-lg mb-3 font-semibold text-center">
+               {formatCustomerCode(customer?.customerCode)}
+            </Text>
+            
 
             <WarningButton onPress={() => {navigation.navigate('AssignQRCodeScreen', {customerMetadata})}}>
               <Ionicons name="ban" size={16}/> Assign new QR Code
