@@ -72,7 +72,7 @@ backendApi.interceptors.response.use(
           processQueue(err, null);
           await deleteTokens();
         } catch (e) {
-          console.error("Failed to cleanup state on auth failure:", e);
+          console.log("Failed to cleanup state on auth failure:", e);
         }
         
         navigate("Landing");
