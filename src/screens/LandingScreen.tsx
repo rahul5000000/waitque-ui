@@ -16,11 +16,13 @@ import { logoutUser } from "../services/authService";
 import { PrimaryButton, SecondaryButton } from '../components/Buttons';
 import Toast from 'react-native-toast-message';
 import { logError } from '../services/mobileLogger';
+import { useQueryParams } from '../hooks/useQueryParams';
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function LandingScreen({ navigation }) {
   const { setCompany, setCustomer, setFlows, setQrCode, setQuestionnaires, setUser, clearContext } = useAppContext();
+  const query = useQueryParams();
   const [isFetching, setIsFetching] = React.useState(false);
   const { isLoaded, mode, customerCode, loginCustomer, loginAdmin, logout } = useAuth();
   const [modalVisible, setModalVisible] = React.useState(false);
@@ -40,8 +42,16 @@ export default function LandingScreen({ navigation }) {
       fetchCustomerData(customerCode);
     } else if (mode === "admin") {
       fetchUserData();
+    } else if(query.customerCode) {
+      console.log("Logging in with customer code from query params");
+      fetchCustomerData(query.customerCode);
     }
   }, [isLoaded, mode]);
+
+  const clearQueryParams = () => {
+    const newUrl = window.location.pathname;
+    window.history.replaceState({}, '', newUrl);
+  };
 
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -87,6 +97,7 @@ export default function LandingScreen({ navigation }) {
       await clearContext();
     } finally {
       setIsFetching(false);
+      clearQueryParams();
     }
   };
 
