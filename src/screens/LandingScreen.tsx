@@ -27,8 +27,9 @@ export default function LandingScreen({ navigation }) {
 
   const [manualCustomerCode1, setManualCustomerCode1] = React.useState('');
   const [manualCustomerCode2, setManualCustomerCode2] = React.useState('');
+  const [productionMode, setProductionMode] = React.useState(process.env.EXPO_PUBLIC_MODE === 'production');
 
-  console.log("Rendering LandingScreen");
+  console.log("Rendering LandingScreen: " + (productionMode ? "Production" : "Development"));
 
   useEffect(() => {
     if (!isLoaded) return;              // Wait until SecureStore is loaded
@@ -72,7 +73,7 @@ export default function LandingScreen({ navigation }) {
         routes: [{ name: "Home" }],
       });
     } catch (error) {
-      console.error("Failed to fetch customer data:", error);
+      console.log("Failed to fetch customer data:", error);
       logError({
         qrCode,
         page: 'LandingScreen',
@@ -113,7 +114,7 @@ export default function LandingScreen({ navigation }) {
         throw new Error("Unsupported user role");
       }
     } catch (error) {
-      console.error("Failed to fetch user data:", error);
+      console.log("Failed to fetch user data:", error);
       await logoutUser(mode, logout);
       await clearContext();
     } finally {
@@ -165,7 +166,7 @@ export default function LandingScreen({ navigation }) {
         });
       }
     }).catch((error) => {
-      console.error("Error searching QR codes:", error);
+      console.log("Error searching QR codes:", error);
       Toast.show({
         type: "error",
         text1: "Customer not found"
@@ -175,6 +176,7 @@ export default function LandingScreen({ navigation }) {
 
   return (
     <SafeAreaView className='flex-1'>
+      {!productionMode ? <Text className='text-center text-red-500'>Development Mode</Text> : null}
       <LoadingOverlay isLoaded={isLoaded && !isFetching} />
       {!isLoaded || isFetching ? null :
         <>

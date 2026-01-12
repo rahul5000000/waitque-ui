@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { TextInput, TouchableOpacity, View, Linking } from "react-native";
+import { TextInput, TouchableOpacity, View, Linking, Platform } from "react-native";
 import { useAppContext } from "../hooks/AppContext";
 import { useCompanyTheme } from "../hooks/useCompanyTheme";
 import axios from "axios";
@@ -46,13 +46,21 @@ export default function ContactWidget() {
   return (
     <View className="flex-row">
       <TextInput 
-        style={{borderWidth: 1, borderColor: '#ddd', borderRadius: 30, padding: 12, backgroundColor: 'white'}} 
+        style={{borderWidth: 1, borderColor: '#ddd', borderRadius: 30, padding: 12, backgroundColor: 'white', outlineStyle: 'none'}} 
         className="flex-1 shadow" 
         placeholder={`Message ${company.name} ...`} 
         onChangeText={handleTypeMessage}
         returnKeyType="send"
         onSubmitEditing={handleButtonPress}
-        value={message}></TextInput>
+        value={message}
+        onFocus={(e) => {
+          if (Platform.OS === "web") {
+            setTimeout(() => {
+              (e.target as any).scrollIntoView({ behavior: "smooth", block: "center" });
+            }, 150);
+          }
+        }}
+      ></TextInput>
       <TouchableOpacity className="p-5 ml-4 items-center" style={{borderRadius: 30, backgroundColor: colors.primaryButtonColor}} onPress={handleButtonPress}>
         <Ionicons name={mode === callMode ? callIcon : arrowIcon} color={'white'} size={16}></Ionicons>
       </TouchableOpacity>

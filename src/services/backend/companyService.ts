@@ -1,7 +1,8 @@
 import {backendApi, userType, mapUserTypeToPath} from "./backendApi";
 
 // const COMPANY_BASE = "http://10.0.0.151:8082";
-const COMPANY_BASE = "https://api.waitque.com/2";
+// const COMPANY_BASE = "https://api.waitque.com/2";
+const COMPANY_BASE = process.env.EXPO_PUBLIC_COMPANY_BASE as string;
 
 export type questionnaireStatus = "ACTIVE" | "INACTIVE";
 

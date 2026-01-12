@@ -1,8 +1,7 @@
 import * as AuthSession from "expo-auth-session";
 import { retrieveRefreshToken } from "./backend/tokenStorage";
 
-const KEYCLOAK_BASE =
-  "https://auth.waitque.com/realms/rrs-waitque/protocol/openid-connect";
+const KEYCLOAK_BASE = process.env.EXPO_PUBLIC_AUTH_URL as string;
 const CLIENT_ID = "mobile-app";
 
 export const discovery = {

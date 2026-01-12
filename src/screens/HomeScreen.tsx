@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard, Button, Settings } from 'react-native';
+import { View, Text, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCompanyTheme } from '../hooks/useCompanyTheme';
 import FlowWidget from '../components/FlowWidget';
@@ -8,6 +8,8 @@ import ContactWidget from '../components/ContactWidget';
 import QuestionnaireResponseWidget from '../components/QuestionnaireResponseWidget';
 import Logo from '../components/Logo';
 import SettingsWidget from '../components/SettingsWidget';
+import { KeyboardDismissWrapper } from '../components/KeyboardDismissWrapper';
+import { KeyboardAvoidingWrapper } from '../components/KeyboardAvoidingWrapper';
 
 
 export default function HomeScreen({ navigation, route }) {
@@ -16,12 +18,8 @@ export default function HomeScreen({ navigation, route }) {
 
   return (
     <SafeAreaView style={[backgroundStyle, { flex: 1 }]}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <KeyboardAvoidingWrapper>
+        <KeyboardDismissWrapper>
           <View style={{ flex: 1, padding: 24 }}>
             <ScrollView
               contentContainerStyle={{ flexGrow: 1 }}
@@ -72,8 +70,8 @@ export default function HomeScreen({ navigation, route }) {
               <ContactWidget />
             </View>
           </View>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
+        </KeyboardDismissWrapper>
+      </KeyboardAvoidingWrapper>
     </SafeAreaView>
   );
 }
