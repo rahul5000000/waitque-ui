@@ -8,6 +8,7 @@ import ContactWidget from '../components/ContactWidget';
 import QuestionnaireResponseWidget from '../components/QuestionnaireResponseWidget';
 import Logo from '../components/Logo';
 import SettingsWidget from '../components/SettingsWidget';
+import { KeyboardDismissWrapper } from '../components/KeyboardDismissWrapper';
 
 
 export default function HomeScreen({ navigation, route }) {
@@ -21,7 +22,7 @@ export default function HomeScreen({ navigation, route }) {
         style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardDismissWrapper>
           <View style={{ flex: 1, padding: 24 }}>
             <ScrollView
               contentContainerStyle={{ flexGrow: 1 }}
@@ -72,7 +73,7 @@ export default function HomeScreen({ navigation, route }) {
               <ContactWidget />
             </View>
           </View>
-        </TouchableWithoutFeedback>
+        </KeyboardDismissWrapper>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
