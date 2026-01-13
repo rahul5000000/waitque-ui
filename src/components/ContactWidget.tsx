@@ -48,7 +48,7 @@ export default function ContactWidget() {
       <TextInput 
         style={{borderWidth: 1, borderColor: '#ddd', borderRadius: 30, padding: 12, backgroundColor: 'white', outlineStyle: 'none'}} 
         className="flex-1 shadow" 
-        placeholder={`Message ${company.name} ...`} 
+        placeholder={`Message ${company?.name} ...`} 
         onChangeText={handleTypeMessage}
         returnKeyType="send"
         onSubmitEditing={handleButtonPress}
