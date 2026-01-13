@@ -26,6 +26,7 @@ export default function EditQuestionnairePage({ navigation, route }) {
   const [questionAnswerMap, setQuestionAnswerMap] = useState({});
   const [questionValidationErrorMap, setQuestionValidationErrorMap] = useState({});
   const [hasActiveValidationError, setHasActiveValidationError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const getCustomerDisplayName = () => {
     if (customerMetadata.customerType === "RESIDENTIAL") {
@@ -115,6 +116,7 @@ export default function EditQuestionnairePage({ navigation, route }) {
 
   const handleSave = () => {
     const answers = buildAnswersForCurrentPage();
+    setIsSubmitting(true);
     customerService.createQuestionnaireResponse(customerMetadata.id, questionnaireId, answers, 'INACTIVE', user.role).then((res) => {
       saveUpdatedQuestionnaireResponse(res.data);
       navigation.goBack();
@@ -132,6 +134,8 @@ export default function EditQuestionnairePage({ navigation, route }) {
         type: 'error',
         text1: "Failed to save questionnaire response"
       });
+    }).finally(() => {
+      setIsSubmitting(false);
     });
   }
 
@@ -144,6 +148,7 @@ export default function EditQuestionnairePage({ navigation, route }) {
 
     allAnswers.push(...currentPageAnswers);
     
+    setIsSubmitting(true);
     customerService.updateQuestionnaireResponse(customerMetadata.id, questionnaireId, questionnaireResponse.id, allAnswers, questionnaireResponse.status, user.role).then((res) => {
       saveUpdatedQuestionnaireResponse(res.data);
       navigation.goBack();
@@ -161,6 +166,8 @@ export default function EditQuestionnairePage({ navigation, route }) {
         type: 'error',
         text1: "Failed to update questionnaire response"
       });
+    }).finally(() => {
+      setIsSubmitting(false);
     });
   }
 
@@ -199,9 +206,9 @@ export default function EditQuestionnairePage({ navigation, route }) {
       </ScrollView>
       <View className="m-8">
         {editMode() ?
-        <PrimaryButton onPress={handleUpdate}>Update</PrimaryButton>
+        <PrimaryButton onPress={handleUpdate} isWorking={isSubmitting}>Update</PrimaryButton>
         :
-        <PrimaryButton onPress={handleSave}>Save</PrimaryButton>
+        <PrimaryButton onPress={handleSave} isWorking={isSubmitting}>Save</PrimaryButton>
         }
       </View>
       </KeyboardAvoidingView>

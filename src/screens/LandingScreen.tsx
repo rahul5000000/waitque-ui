@@ -30,6 +30,7 @@ export default function LandingScreen({ navigation }) {
   const [manualCustomerCode1, setManualCustomerCode1] = React.useState('');
   const [manualCustomerCode2, setManualCustomerCode2] = React.useState('');
   const [productionMode, setProductionMode] = React.useState(process.env.EXPO_PUBLIC_MODE === 'production');
+  const [isLoggingIn, setIsLoggingIn] = React.useState(false);
 
   console.log("Rendering LandingScreen: " + (productionMode ? "Production" : "Development"));
 
@@ -168,6 +169,7 @@ export default function LandingScreen({ navigation }) {
   }, [response]);
 
   const manuallyLogin = async () => {
+    setIsLoggingIn(true);
     const fullCustomerCode = (manualCustomerCode1.trim()) + (manualCustomerCode2.trim());
     publicService.searchQrCodes(fullCustomerCode).then(async (res) => {
       console.log(res.data);
@@ -188,6 +190,8 @@ export default function LandingScreen({ navigation }) {
         type: "error",
         text1: "Customer not found"
       });
+    }).finally(() => {
+      setIsLoggingIn(false);
     });
   }
 
@@ -218,7 +222,7 @@ export default function LandingScreen({ navigation }) {
                     <TextInput ref={input2Ref} maxLength={4} autoComplete='off' autoCorrect={false} style={{borderColor: "#ddd", borderWidth: 2, padding: 12, marginBottom: 12, borderRadius: 5, backgroundColor: 'white', color: 'black', fontWeight: 'bold', fontSize: 16, textAlign: 'center'}} onChangeText={(customerCode) => setManualCustomerCode2(customerCode)} value={manualCustomerCode2}/>
                   </View>
                 </View>
-                <PrimaryButton onPress={manuallyLogin}>Login</PrimaryButton>
+                <PrimaryButton onPress={manuallyLogin} isWorking={isLoggingIn}>Login</PrimaryButton>
                 <SecondaryButton onPress={() => setModalVisible(false)}>Cancel</SecondaryButton>
               </View>
             </View>

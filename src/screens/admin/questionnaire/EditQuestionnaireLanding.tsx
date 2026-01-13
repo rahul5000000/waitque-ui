@@ -22,6 +22,8 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
   const [questionnaireResponseDetail, setQuestionnaireResponseDetail] = useState(null);
   const [editModeFlag, setEditModeFlag] = useState(false);
   const [isActiveFlag, setIsActiveFlag] = useState(false);
+  const [isInactivating, setIsInactivating] = useState(false);
+  const [isActivating, setIsActivating] = useState(false);
 
   const getCustomerDisplayName = () => {
     if (customerMetadata.customerType === "RESIDENTIAL") {
@@ -124,7 +126,9 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
   }
 
   const inactivateQuestionnaireResponse = () => {
-    customerService.deleteQuestionnaireResponse(customerMetadata.id, questionnaireResponse.id, user.role).then((res) => {
+    setIsInactivating(true);
+    let questionnaireResponseId = questionnaireResponse.id != null ? questionnaireResponse.id : questionnaireResponseDetail.id;
+    customerService.deleteQuestionnaireResponse(customerMetadata.id, questionnaireResponseId, user.role).then((res) => {
       setQuestionnaireResponseDetail(res.data);
       questionnaireResponseUpdatedCallback();
     }).catch((error) => {
@@ -142,6 +146,8 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
         text1: "There was an issue deactivating the questionnaire response.",
         text2: "Please try again."
       });
+    }).finally(() => {
+      setIsInactivating(false);
     });
   }
 
@@ -161,7 +167,9 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
   }
 
   const activateQuestionnaireResponse = () => {
-    customerService.updateQuestionnaireResponseStatus(customerMetadata.id, questionnaireResponse.id, "ACTIVE", user.role).then((res) => {
+    setIsActivating(true);
+    let questionnaireResponseId = questionnaireResponse.id != null ? questionnaireResponse.id : questionnaireResponseDetail.id;
+    customerService.updateQuestionnaireResponseStatus(customerMetadata.id, questionnaireResponseId, "ACTIVE", user.role).then((res) => {
       setQuestionnaireResponseDetail(res.data);
       questionnaireResponseUpdatedCallback();
     }).catch((error) => {
@@ -179,6 +187,8 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
         text1: "There was an issue activating the questionnaire response.",
         text2: "Please try again."
       });
+    }).finally(() => {
+      setIsActivating(false);
     });
   }
 
@@ -216,11 +226,11 @@ export default function EditQuestionnaireLanding({ navigation, route }) {
       {editModeFlag ? (
       <View className="m-8">
         {isActiveFlag ? (
-          <WarningButton onPress={handleInactivate}>
+          <WarningButton onPress={handleInactivate} isWorking={isInactivating}>
             Deactivate
           </WarningButton>
         ) : (
-          <PrimaryButton onPress={handleActivate}>
+          <PrimaryButton onPress={handleActivate} isWorking={isActivating}>
             Activate
           </PrimaryButton>
         )}

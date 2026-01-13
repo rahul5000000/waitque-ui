@@ -25,6 +25,7 @@ export default function LeadEntryScreen({route, navigation}) {
   const [questionAnswerMap, setQuestionAnswerMap] = useState({});
   const [questionValidationErrorMap, setQuestionValidationErrorMap] = useState({});
   const [hasActiveValidationError, setHasActiveValidationError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchFlowDetails = async () => {
@@ -124,9 +125,13 @@ export default function LeadEntryScreen({route, navigation}) {
             }
           });
 
-        publicService.createLead(qrCode, flowDetails.id, answers).then((res) => {
-          navigation.navigate('LeadConfirmation', {flowDetails});
-        });
+          setIsSubmitting(true);
+
+          publicService.createLead(qrCode, flowDetails.id, answers).then((res) => {
+            navigation.navigate('LeadConfirmation', {flowDetails});
+          }).finally(() => {
+            setIsSubmitting(false);
+          });
       } else {
         Toast.show({
           type: 'error',
@@ -187,7 +192,7 @@ export default function LeadEntryScreen({route, navigation}) {
             }
           })}
           <View className="mt-4">
-            <WarningButton onPress={handleSubmit}>{flowDetails.buttonText}</WarningButton>
+            <WarningButton onPress={handleSubmit} isWorking={isSubmitting}>{flowDetails.buttonText}</WarningButton>
           </View>
           </ScrollView>
         </View>}
