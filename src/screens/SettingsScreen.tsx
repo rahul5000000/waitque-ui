@@ -14,15 +14,22 @@ export default function SettingsScreen({navigation}) {
   const {colors} = useCompanyTheme();
   const {mode, logout} = useAuth();
   const {clearContext} = useAppContext();
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
   const handleLogout = async () => {
-    await logoutUser(mode, logout);
-    await clearContext();
-    
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Landing" }],
-    });
+    setIsLoggingOut(true);
+
+    try {
+      await logoutUser(mode, logout);
+      await clearContext();
+      
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Landing" }],
+      });
+    } finally {
+      setIsLoggingOut(false); 
+    }
   }
 
   return (
@@ -31,7 +38,7 @@ export default function SettingsScreen({navigation}) {
         <View className="p-8">
           <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>Settings</Header>
           <View className="mt-4">
-          <WarningButton onPress={handleLogout}>Logout</WarningButton>
+          <WarningButton onPress={handleLogout} isWorking={isLoggingOut}>Logout</WarningButton>
           </View>
         </View>
       </ScrollView>

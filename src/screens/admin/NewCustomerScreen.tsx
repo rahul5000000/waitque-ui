@@ -145,8 +145,6 @@ export default function NewCustomerScreen({ navigation }) {
               style={{ flex: 1 }}
               keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
             >
-        {isSubmitting ? <Spinner message="Creating Customer"></Spinner> :
-        <>
         <View className="pt-8 px-8">
           <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>
             New Customer
@@ -183,11 +181,9 @@ export default function NewCustomerScreen({ navigation }) {
             <TextNewCustomerQuestion isRequired ={true} value={zip} onChange={setZip} hasValidationError={validationErrorMap.get("zip")}>Zip Code</TextNewCustomerQuestion>
           </View>
           <View className="mb-4">
-            <PrimaryButton onPress={handleSubmit}>Create Customer</PrimaryButton>
+            <PrimaryButton onPress={handleSubmit} isWorking={isSubmitting}>Create Customer</PrimaryButton>
           </View>
         </ScrollView>
-        </>
-      }
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
