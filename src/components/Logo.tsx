@@ -17,9 +17,9 @@ export default function Logo({ size = 'medium' as LogoSize }: { size?: LogoSize 
 
     return (
         <>
-        { company.logoUrl ? <Image
+        { company?.logoUrl ? <Image
                 style={{ width: pixelSize, height: pixelSize }}
-                source={{ uri: company.logoUrl }}
+                source={{ uri: company?.logoUrl }}
                 accessibilityLabel={`${company?.name || 'Company'} logo`}/> 
             : null }
         </>

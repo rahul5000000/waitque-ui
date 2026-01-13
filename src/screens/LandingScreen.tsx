@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, View, TouchableOpacity, Pressable, Modal, Alert, TextInput } from 'react-native';
 import { useAppContext } from '../hooks/AppContext';
@@ -49,8 +49,14 @@ export default function LandingScreen({ navigation }) {
   }, [isLoaded, mode]);
 
   const clearQueryParams = () => {
-    const newUrl = window.location.pathname;
-    window.history.replaceState({}, '', newUrl);
+    try {
+      if(window.location) {
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, '', newUrl);
+      }
+    } catch (error) {
+      console.log("Failed to clear query params:", error);
+    }
   };
 
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -185,6 +191,8 @@ export default function LandingScreen({ navigation }) {
     });
   }
 
+  const input2Ref = useRef<TextInput>(null);
+
   return (
     <SafeAreaView className='flex-1'>
       {!productionMode ? <Text className='text-center text-red-500'>Development Mode</Text> : null}
@@ -202,9 +210,13 @@ export default function LandingScreen({ navigation }) {
               <View className='m-8 p-6 rounded-xl bg-white' style={{width: '80%'}}>
                 <Text className='mb-2'>Enter Customer Code:</Text>
                 <View className='flex-row justify-center'>
-                  <TextInput className='flex-1' autoComplete='off' autoCorrect={false} style={{borderColor: "#ddd", borderWidth: 2, padding: 12, marginBottom: 12, borderRadius: 5, backgroundColor: 'white', color: 'black', fontWeight: 'bold', fontSize: 16, textAlign: 'center'}} onChangeText={(customerCode) => setManualCustomerCode1(customerCode)} value={manualCustomerCode1}/>
+                  <View style={{flex: 1}}>
+                    <TextInput maxLength={4} autoComplete='off' autoCorrect={false} style={{borderColor: "#ddd", borderWidth: 2, padding: 12, marginBottom: 12, borderRadius: 5, backgroundColor: 'white', color: 'black', fontWeight: 'bold', fontSize: 16, textAlign: 'center'}} onChangeText={(customerCode) => {setManualCustomerCode1(customerCode); if(customerCode.length === 4) input2Ref.current?.focus();}} value={manualCustomerCode1}/>
+                  </View>
                   <Text className='font-bold text-3xl'> - </Text>
-                  <TextInput className='flex-1' autoComplete='off' autoCorrect={false} style={{borderColor: "#ddd", borderWidth: 2, padding: 12, marginBottom: 12, borderRadius: 5, backgroundColor: 'white', color: 'black', fontWeight: 'bold', fontSize: 16, textAlign: 'center'}} onChangeText={(customerCode) => setManualCustomerCode2(customerCode)} value={manualCustomerCode2}/>
+                  <View style={{flex: 1}}>
+                    <TextInput ref={input2Ref} maxLength={4} autoComplete='off' autoCorrect={false} style={{borderColor: "#ddd", borderWidth: 2, padding: 12, marginBottom: 12, borderRadius: 5, backgroundColor: 'white', color: 'black', fontWeight: 'bold', fontSize: 16, textAlign: 'center'}} onChangeText={(customerCode) => setManualCustomerCode2(customerCode)} value={manualCustomerCode2}/>
+                  </View>
                 </View>
                 <PrimaryButton onPress={manuallyLogin}>Login</PrimaryButton>
                 <SecondaryButton onPress={() => setModalVisible(false)}>Cancel</SecondaryButton>

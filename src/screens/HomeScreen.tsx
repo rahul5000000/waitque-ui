@@ -29,10 +29,10 @@ export default function HomeScreen({ navigation, route }) {
                 <View className='flex-row mb-10 mt-2'>
                   <View className='flex-2 items-start justify-center'>
                     <Text className="text-2xl font-semibold" style={textStyle}>
-                      Hi {customer.customerType === "RESIDENTIAL" || !customer.companyName ? `${customer.firstName} ${customer.lastName}` : customer.companyName},
+                      Hi {customer?.customerType === "RESIDENTIAL" || !customer?.companyName ? `${customer?.firstName} ${customer?.lastName}` : customer?.companyName},
                     </Text>
                     <Text className="text-2xl font-semibold" style={textStyle}>
-                      {company.landingPrompt}
+                      {company?.landingPrompt}
                     </Text>
                   </View>
                   <View className='flex-1 items-end justify-center'>
@@ -42,14 +42,14 @@ export default function HomeScreen({ navigation, route }) {
 
                 <View style={{ flex: 1 }}>
                   <View className="flex-row flex-wrap justify-center gap-4 mb-8">
-                    {flows.leadFlows.map((flow) => (
+                    {flows?.leadFlows.map((flow) => (
                       <FlowWidget
                         key={flow.id}
                         navigation={navigation}
                         flow={flow}
                       />
                     ))}
-                    {questionnaires.questionnaireResponses.map((questionnaireResponse) => (
+                    {questionnaires?.questionnaireResponses.map((questionnaireResponse) => (
                       <QuestionnaireResponseWidget
                         key={questionnaireResponse.id}
                         navigation={navigation}
@@ -57,7 +57,7 @@ export default function HomeScreen({ navigation, route }) {
                       />
                     ))}
                     <SettingsWidget navigation={navigation} />
-                    {(flows.leadFlows.length + questionnaires.questionnaireResponses.length + 1) % 2 === 1 ? (
+                    {(flows?.leadFlows.length + questionnaires?.questionnaireResponses.length + 1) % 2 === 1 ? (
                       <View className="w-36 h-32 rounded-xl" />
                     ) : null}
                   </View>
