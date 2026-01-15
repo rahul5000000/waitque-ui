@@ -34,6 +34,10 @@ export default function NewCustomerScreen({ navigation }) {
     validateFields();
   }, [isCommercial, companyName, firstName, lastName, address1, city, state, zip, email, phone]);
 
+  const digitsOnly = (phone: string): string => {
+    return phone.replace(/\D/g, '');
+  };
+
   const handleSubmit = () => {
     validateFields();
 
@@ -59,7 +63,7 @@ export default function NewCustomerScreen({ navigation }) {
       "email": email,
       "phone": {
         "countryCode": "1",
-        "phoneNumber": phone
+        "phoneNumber": digitsOnly(phone)
       },
       "address": {
         "address1": address1,
