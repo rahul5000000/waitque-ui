@@ -10,11 +10,18 @@ export default function LandingScreen({navigation, route}) {
   const {flowDetails} = route.params;
   const {colors} = useCompanyTheme();
 
+  const goBack = () => {
+    navigation.reset({
+        index: 0,
+        routes: [{ name: "Home" }],
+      });
+    };
+
   return (
     <SafeAreaView className='flex-1'>
       <ScrollView className="flex-1">
         <View className="p-8">
-          <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>{flowDetails.confirmationMessageHeader}</Header>
+          <Header icon="arrow-back-outline" iconOnPress={() => goBack()}>{flowDetails.confirmationMessageHeader}</Header>
           <View className="items-center mt-12">
             <Logo size={'large'}/>
           </View>

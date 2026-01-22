@@ -44,7 +44,13 @@ export default function QRScanner({onScan}) {
 
   const handleScan = ({ data }) => {
     if (!scanned) {
-      if(data && data.includes("waitque")) {
+      let expectedDomain = "waitque";
+
+      if(process.env.EXPO_PUBLIC_MODE !== 'production') {
+        expectedDomain = "localhost";
+      }
+
+      if(data && data.includes(expectedDomain)) {
         const url = new URL(data);                         // parse full URL
         const customerCode = url.searchParams.get("customerCode"); 
         const companyId = url.searchParams.get("company"); 
