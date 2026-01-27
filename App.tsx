@@ -22,6 +22,10 @@ import CommercialCustomerDetail from './src/screens/admin/CommercialCustomerDeta
 import EditQuestionnaireLanding from './src/screens/admin/questionnaire/EditQuestionnaireLanding';
 import EditQuestionnairePage from './src/screens/admin/questionnaire/EditQuestionnairePage';
 import NewCustomerScreen from './src/screens/admin/NewCustomerScreen';
+import AdminHomeScreen from './src/screens/admin/AdminHomeScreen';
+import LeadSearchPage from './src/screens/admin/LeadSearchPage';
+import MessageSearchPage from './src/screens/admin/MessageSearchPage';
+import MessageDetailPage from './src/screens/admin/MessageDetailPage';
 
 const Stack = createNativeStackNavigator();
 
@@ -46,6 +50,10 @@ export default function App() {
             <Stack.Screen name="EditQuestionnaireLanding" component={EditQuestionnaireLanding} options={{ headerShown: false }} />
             <Stack.Screen name="EditQuestionnairePage" component={EditQuestionnairePage} options={{ headerShown: false }} />
             <Stack.Screen name="NewCustomerScreen" component={NewCustomerScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="AdminHome" component={AdminHomeScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="LeadSearchPage" component={LeadSearchPage} options={{ headerShown: false }} />
+            <Stack.Screen name="MessageSearchPage" component={MessageSearchPage} options={{ headerShown: false }} />
+            <Stack.Screen name="MessageDetailPage" component={MessageDetailPage} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
         <Toast/>
