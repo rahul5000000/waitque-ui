@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useCompanyTheme } from '../../../hooks/useCompanyTheme';
 
-export default function LeadResultWidget({ lead }) {
+export default function LeadResultWidget({ lead, onPress }) {
   const {alertBackgroundStyle} = useCompanyTheme();
 
   const toFriendlyDate = (dateStr) => {
@@ -32,10 +32,17 @@ export default function LeadResultWidget({ lead }) {
     }
   }
 
+  const getFromName = (message) => {
+    if(message.companyName) {
+      return message.companyName;
+    }
+    return `${message.firstName} ${message.lastName}`;
+  }
+
   return (
-    <TouchableOpacity className="p-4 mb-4 rounded-lg" style={alertBackgroundStyle}>
+    <TouchableOpacity className="p-4 mb-4 rounded-lg" style={alertBackgroundStyle} onPress={onPress}>
       <View>
-        <Text className='font-semibold text-lg'>{lead.leadFlowName} Lead for {lead.firstName} {lead.lastName}</Text>
+        <Text className='font-semibold text-lg'>{lead.leadFlowName} Lead for {getFromName(lead)}</Text>
         <View className="flex-row justify-between mt-2">
           <View>
             <Text className="font-semibold text-xs text-gray-400">Status:</Text>

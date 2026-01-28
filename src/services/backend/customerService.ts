@@ -79,5 +79,16 @@ export const customerService = {
           "Content-Type": "application/x-www-form-urlencoded",
         },
       });
+  },
+  updateLeadStatus: (leadId: number, status: string, userType: userType) => {
+    const payload = qs.stringify({
+      status: status
+    });
+    return backendApi.patch(`${CUSTOMER_BASE}/api/${mapUserTypeToPath(userType)}/leads/${leadId}/status`, payload,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
   }
 };

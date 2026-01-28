@@ -7,6 +7,7 @@ import Header from '../../components/Header';
 import Spinner from '../../components/Spinner';
 import { PrimaryButton } from '../../components/Buttons';
 import { useCompanyTheme } from '../../hooks/useCompanyTheme';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function MessageDetailPage({ route, navigation }) {
   const {alertBackgroundStyle} = useCompanyTheme();
@@ -35,6 +36,13 @@ export default function MessageDetailPage({ route, navigation }) {
     });
   }
 
+  const getFromName = (message) => {
+    if(message.companyName) {
+      return message.companyName;
+    }
+    return `${message.firstName} ${message.lastName}`;
+  }
+
   const handleStatusUpdate = (messageId, newStatus) => {
     setIsSaving(true);
     customerService.updateMessageStatus(messageId, newStatus, user.role).then((response) => {
@@ -57,7 +65,7 @@ export default function MessageDetailPage({ route, navigation }) {
             >
         <View className="pt-8 px-8">
           <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>
-            {messageMetadata.firstName} {messageMetadata.lastName}'s Message
+            {getFromName(messageMetadata)}'s Message
           </Header>
         </View>
         {isSearching && 
@@ -68,8 +76,11 @@ export default function MessageDetailPage({ route, navigation }) {
         <ScrollView className="flex-1 px-8 mt-6">
           {!isSearching && messageDetails && (
             <View>
-              <Text className="mb-2 rounded-3xl p-4" style={alertBackgroundStyle}>{messageDetails.message}</Text>
-              <Text className="mb-4 mr-4 text-xs text-end">{toFriendlyDate(messageMetadata.createdDate)}</Text>
+              <View className="flex-row items-center rounded-3xl p-3" style={alertBackgroundStyle}>
+                <Ionicons name="arrow-forward-circle-outline" size={20} className='mr-2 text-gray-400'/>
+                <Text className="flex-1">{messageDetails.message}</Text>
+              </View>
+              <Text className="mt-1 mb-4 mr-4 text-xs text-end">{toFriendlyDate(messageMetadata.createdDate)}</Text>
               {messageMetadata.status === "UNREAD" && <PrimaryButton onPress={() => handleStatusUpdate(messageMetadata.id, "FOLLOW_UP")} isWorking={isSaving}>Mark for Follow Up</PrimaryButton> }
               {(messageMetadata.status === "FOLLOW_UP" || messageMetadata.status === "UNREAD") && <PrimaryButton onPress={() => handleStatusUpdate(messageMetadata.id, "READ")} isWorking={isSaving}>Mark Read</PrimaryButton>}
               {messageMetadata.status === "READ" && <PrimaryButton onPress={() => handleStatusUpdate(messageMetadata.id, "UNREAD")} isWorking={isSaving}>Mark Unread</PrimaryButton> }

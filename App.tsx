@@ -26,6 +26,7 @@ import AdminHomeScreen from './src/screens/admin/AdminHomeScreen';
 import LeadSearchPage from './src/screens/admin/LeadSearchPage';
 import MessageSearchPage from './src/screens/admin/MessageSearchPage';
 import MessageDetailPage from './src/screens/admin/MessageDetailPage';
+import LeadDetailPage from './src/screens/admin/LeadDetailPage';
 
 const Stack = createNativeStackNavigator();
 
@@ -54,6 +55,7 @@ export default function App() {
             <Stack.Screen name="LeadSearchPage" component={LeadSearchPage} options={{ headerShown: false }} />
             <Stack.Screen name="MessageSearchPage" component={MessageSearchPage} options={{ headerShown: false }} />
             <Stack.Screen name="MessageDetailPage" component={MessageDetailPage} options={{ headerShown: false }} />
+            <Stack.Screen name="LeadDetailPage" component={LeadDetailPage} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
         <Toast/>

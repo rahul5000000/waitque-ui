@@ -14,7 +14,7 @@ export default function LeadSearchPage({ navigation, route }) {
   const [isSearching, setIsSearching] = React.useState(false);
   const [leadStatuses, setLeadStatuses] = React.useState(['NEW', 'IN_PROGRESS']);
 
-  useEffect(() => {
+  const searchLeads = () => {
     setIsSearching(true);
     // TODO deal with pagination / infinite scroll
     customerService.searchLeads(leadStatuses, user.role, 100).then((response) => {
@@ -25,7 +25,16 @@ export default function LeadSearchPage({ navigation, route }) {
     }).finally(() => {
       setIsSearching(false);
     });
+  }
+
+  useEffect(() => {
+    searchLeads();
   }, [leadStatuses]);
+
+  const leadUpdatedCallback = () => {
+    searchLeads();
+    dashboardRefreshCallback();
+  };
   
   return (
     <SafeAreaView className="flex-1">
@@ -50,7 +59,7 @@ export default function LeadSearchPage({ navigation, route }) {
           )}
 
           {leads.map((l, index) => (
-            <LeadResultWidget lead={l} key={index} />
+            <LeadResultWidget lead={l} key={index} onPress={() => navigation.navigate("LeadDetailPage", {leadMetadata: l, leadUpdatedCallback})}/>
           ))}
         </ScrollView>
       </KeyboardAvoidingView>

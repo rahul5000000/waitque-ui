@@ -27,10 +27,17 @@ export default function MessageResultWidget({ message, onPress }) {
     }
   }
 
+  const getFromName = (message) => {
+    if(message.companyName) {
+      return message.companyName;
+    }
+    return `${message.firstName} ${message.lastName}`;
+  }
+
   return (
     <TouchableOpacity className="p-4 mb-4 rounded-lg" style={alertBackgroundStyle} onPress={onPress}>
       <View>
-        <Text className='font-semibold text-lg'>From: {message.firstName} {message.lastName}</Text>
+        <Text className='font-semibold text-lg'>From: {getFromName(message)}</Text>
         <View className='flex-row items-center'>
           <Ionicons name="mail-open-outline" size={20} className='mt-2 mb-1 text-gray-400'/>
           <Text className='ml-1 mt-1'>{message.contentSnippet}</Text>
