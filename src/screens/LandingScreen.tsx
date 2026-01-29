@@ -128,6 +128,11 @@ export default function LandingScreen({ navigation }) {
           index: 0,
           routes: [{ name: "FieldHome" }],
         });
+      } else if(user.role == "ADMIN") {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "AdminHome" }],
+        });
       } else {
         throw new Error("Unsupported user role");
       }

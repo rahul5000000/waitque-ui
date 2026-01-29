@@ -58,4 +58,37 @@ export const customerService = {
     return backendApi.patch(`${CUSTOMER_BASE}/api/${mapUserTypeToPath(userType)}/customers/${customerId}/questionnaires/*/responses/${questionnaireResponseId}/status`, payload);
   },
   createCustomer: (customerData: any, userType: userType) => backendApi.post(`${CUSTOMER_BASE}/api/${mapUserTypeToPath(userType)}/customers`, customerData),
+  getAdminDasboardMetrics: (userType: userType) => backendApi.get(`${CUSTOMER_BASE}/api/${mapUserTypeToPath(userType)}/dashboard/metrics`),
+  searchLeads: (statuses: string[], userType: userType, limit = 10, page = 0) => {
+    const statusParam = statuses.length > 0 ? `&status=${statuses.join(',')}` : '';
+    return backendApi.get(`${CUSTOMER_BASE}/api/${mapUserTypeToPath(userType)}/leads?limit=${limit}&page=${page}${statusParam}`);
+  },
+  searchMessages: (statuses: string[], userType: userType, limit = 10, page = 0) => {
+    const statusParam = statuses.length > 0 ? `&status=${statuses.join(',')}` : '';
+    return backendApi.get(`${CUSTOMER_BASE}/api/${mapUserTypeToPath(userType)}/messages?limit=${limit}&page=${page}${statusParam}`);
+  },
+  getLead: (leadId: number, userType: userType) => backendApi.get(`${CUSTOMER_BASE}/api/${mapUserTypeToPath(userType)}/leads/${leadId}`),
+  getMessage: (messageId: number, userType: userType) => backendApi.get(`${CUSTOMER_BASE}/api/${mapUserTypeToPath(userType)}/messages/${messageId}`),
+  updateMessageStatus: (messageId: number, status: string, userType: userType) => {
+    const payload = qs.stringify({
+      status: status
+    });
+    return backendApi.patch(`${CUSTOMER_BASE}/api/${mapUserTypeToPath(userType)}/messages/${messageId}/status`, payload,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+  },
+  updateLeadStatus: (leadId: number, status: string, userType: userType) => {
+    const payload = qs.stringify({
+      status: status
+    });
+    return backendApi.patch(`${CUSTOMER_BASE}/api/${mapUserTypeToPath(userType)}/leads/${leadId}/status`, payload,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+  }
 };

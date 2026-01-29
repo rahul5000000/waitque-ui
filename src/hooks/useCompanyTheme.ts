@@ -57,6 +57,7 @@ export function useCompanyTheme() {
     cardStyle: {backgroundColor: 'white', borderColor: backgroundColorDarker, borderWidth: 1, borderRadius: 8},
     mutedWidgetBackgroundStyle: { backgroundColor: backgroundColorDarker, shadowColor: "#000", shadowOpacity: 0.15, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
     mutedWidgetButtonTextStyle: { color: darkerTextColor },
+    alertBackgroundStyle: {backgroundColor: backgroundColorDarker},
 
     // Also expose raw values for flexibility:
     colors: theme,
