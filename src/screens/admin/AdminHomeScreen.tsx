@@ -10,6 +10,7 @@ import Spinner from "../../components/Spinner";
 import ActiveLeadsWidget from "../../components/admin/ActiveLeadsWidget";
 import UnreadMessagesWidget from "../../components/admin/UnreadMessagesWidget";
 import AlertWidget from "../../components/AlertWidget";
+import GenerateQRCodeWidget from "../../components/admin/GenerateQRCodeWidget";
 
 export default function AdminHomeScreen({navigation}) {
   const {colors, widgetButtonTextStyle, alertBackgroundStyle} = useCompanyTheme();
@@ -73,8 +74,9 @@ export default function AdminHomeScreen({navigation}) {
           <View className="flex-row flex-wrap justify-center gap-4 mb-8 mt-8">
             <ActiveLeadsWidget navigation={navigation} activeLeadsCount={metrics?.activeLeadsCount} dashboardRefreshCallback={dashboardRefreshCallback}/>
             <UnreadMessagesWidget navigation={navigation} unreadMessagesCount={metrics?.unreadMessages} dashboardRefreshCallback={dashboardRefreshCallback}/>
+            <GenerateQRCodeWidget navigation={navigation} />
             <SettingsWidget navigation={navigation} />
-            {(2 + 1) % 2 === 1 ? (
+            {(3 + 1) % 2 === 1 ? (
               <View className="w-36 h-32 rounded-xl" />
             ) : null}
           </View>
