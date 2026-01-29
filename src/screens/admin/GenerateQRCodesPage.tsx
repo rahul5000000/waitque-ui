@@ -100,7 +100,7 @@ export default function GenerateQRCodesPage({navigation}) {
           </Header>
         </View>
         <View className="px-8 mt-6">
-          <Text className="text-gray-500">Generate new unassigned QR codes to print on flyers, etc. These unassigned QR codes can be assigned to customers later in the field.</Text>
+          <Text className="text-gray-500">Generate new unassigned QR codes to print on flyers, swag, etc. These unassigned QR codes can be assigned to customers later in the field.</Text>
           <Text className="mt-4 mb-2">Number of QR codes to generate (up to 1000):</Text>
           <TextInput style={textInputStyle} value={value} onChangeText={handleChange} keyboardType="number-pad" placeholder="1–1000"/>
           <PrimaryButton onPress={handleGenerate} isWorking={isGenerating}>Generate QR Codes</PrimaryButton>
