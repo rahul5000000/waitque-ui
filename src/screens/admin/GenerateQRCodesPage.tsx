@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { companyService } from "../../services/backend/companyService";
 import { useAppContext } from '../../hooks/AppContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { KeyboardAvoidingView, Platform, ScrollView, View, Text, TextInput } from 'react-native';
+import { KeyboardAvoidingView, Platform, View, Text, TextInput } from 'react-native';
 import Header from '../../components/Header';
 import Spinner from '../../components/Spinner';
 import { useCompanyTheme } from "../../hooks/useCompanyTheme";
 import { PrimaryButton } from "../../components/Buttons";
 import Toast from "react-native-toast-message";
+import { writeAsStringAsync, documentDirectory, EncodingType } from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 
 export default function GenerateQRCodesPage({navigation}) {
   const {user} = useAppContext();
@@ -39,9 +41,41 @@ export default function GenerateQRCodesPage({navigation}) {
 
     //Call backend service to generate QR codes
     setIsGenerating(true);
-    companyService.generateQRCodes(numToGenerate, user.role).then((response) => {
-      console.log("Generated QR codes:", response.data);
-      //navigation.goBack();
+    companyService.generateQRCodes(numToGenerate, user.role).then(async (response) => {
+      try {
+        // Convert arraybuffer to base64
+        const bytes = new Uint8Array(response.data);
+        let base64 = '';
+        for (let i = 0; i < bytes.length; i++) {
+          base64 += String.fromCharCode(bytes[i]);
+        }
+        const encoded = btoa(base64);
+
+        if (Platform.OS === 'web') {
+          // Web: use blob download
+          const blob = new Blob([response.data], { type: 'application/zip' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `qr-codes-${Date.now()}.zip`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        } else {
+          // Native: use file system
+          const fileName = `qr-codes-${Date.now()}.zip`;
+          const fileUri = documentDirectory + fileName;
+          await writeAsStringAsync(fileUri, encoded, { encoding: EncodingType.Base64 });
+          await Sharing.shareAsync(fileUri, { mimeType: 'application/zip' });
+        }
+
+        Toast.show({ text1: "QR codes downloaded!", type: "success" });
+        navigation.goBack();
+      } catch (err) {
+        console.error('File error:', err);
+        Toast.show({ text1: "Failed to save file.", type: "error" });
+      }
     }).catch((error) => {
       console.log("Failed to generate QR codes:", error);
       Toast.show({
