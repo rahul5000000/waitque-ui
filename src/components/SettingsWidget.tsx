@@ -2,12 +2,8 @@ import React from 'react';
 import { useCompanyTheme } from '../hooks/useCompanyTheme';
 import HomeWidget from './HomeWidget';
 
-export default function SettingsWidget({navigation}) {
+export default function SettingsWidget({navigation, onPress}) {
   const {mutedWidgetBackgroundStyle, mutedWidgetButtonTextStyle} = useCompanyTheme();
-
-  const handleServicePress = async () => {
-    navigation.navigate('Settings');
-  };
 
   return (
     <HomeWidget
@@ -15,6 +11,6 @@ export default function SettingsWidget({navigation}) {
           icon="settings-outline"
           textStyle={mutedWidgetButtonTextStyle} 
           backgroundStyle={mutedWidgetBackgroundStyle} 
-          onPress={() => handleServicePress()}>Settings</HomeWidget>
+          onPress={onPress}>Settings</HomeWidget>
   )
 }

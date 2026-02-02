@@ -56,7 +56,7 @@ export default function HomeScreen({ navigation, route }) {
                         questionnaireResponse={questionnaireResponse}
                       />
                     ))}
-                    <SettingsWidget navigation={navigation} />
+                    <SettingsWidget navigation={navigation} onPress={() => navigation.navigate('Settings')}/>
                     {(flows?.leadFlows.length + questionnaires?.questionnaireResponses.length + 1) % 2 === 1 ? (
                       <View className="w-36 h-32 rounded-xl" />
                     ) : null}

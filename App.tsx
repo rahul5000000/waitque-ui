@@ -28,6 +28,10 @@ import MessageSearchPage from './src/screens/admin/MessageSearchPage';
 import MessageDetailPage from './src/screens/admin/MessageDetailPage';
 import LeadDetailPage from './src/screens/admin/LeadDetailPage';
 import GenerateQRCodesPage from './src/screens/admin/GenerateQRCodesPage';
+import AdminSettingsScreen from './src/screens/admin/AdminSettingsScreen';
+import UserSearchPage from './src/screens/admin/UserSearchPage';
+import CreateUserPage from './src/screens/admin/CreateUserPage';
+import UserDetailPage from './src/screens/admin/UserDetailPage';
 
 const Stack = createNativeStackNavigator();
 
@@ -58,6 +62,10 @@ export default function App() {
             <Stack.Screen name="MessageDetailPage" component={MessageDetailPage} options={{ headerShown: false }} />
             <Stack.Screen name="LeadDetailPage" component={LeadDetailPage} options={{ headerShown: false }} />
             <Stack.Screen name="GenerateQRCodesPage" component={GenerateQRCodesPage} options={{ headerShown: false }} />
+            <Stack.Screen name="AdminSettingsPage" component={AdminSettingsScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="UserSearchPage" component={UserSearchPage} options={{ headerShown: false }} />
+            <Stack.Screen name="CreateUserPage" component={CreateUserPage} options={{ headerShown: false }} />
+            <Stack.Screen name="UserDetailPage" component={UserDetailPage} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
         <Toast/>

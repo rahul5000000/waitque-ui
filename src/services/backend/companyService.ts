@@ -14,4 +14,8 @@ export const companyService = {
   {
       responseType: 'arraybuffer', // Important: get binary data
   }),
+  getUsers: (userType: userType) => backendApi.get(`${COMPANY_BASE}/api/${mapUserTypeToPath(userType)}/company/users`),
+  createUser: (userTypeToCreate: userType, userData: any, userType: userType) => backendApi.post(`${COMPANY_BASE}/api/${mapUserTypeToPath(userType)}/company/users/${mapUserTypeToPath(userTypeToCreate)}`, userData),
+  updateUserStatus: (userId: number, isActive: boolean, userType: userType) => backendApi.patch(`${COMPANY_BASE}/api/${mapUserTypeToPath(userType)}/company/users/${userId}/status/${isActive ? 'ENABLED' : 'DISABLED'}`),
+  deleteUser: (userId: number, userType: userType) => backendApi.delete(`${COMPANY_BASE}/api/${mapUserTypeToPath(userType)}/company/users/${userId}`),
 };
