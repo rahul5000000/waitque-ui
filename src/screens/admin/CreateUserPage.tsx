@@ -115,7 +115,7 @@ export default function CreateUserPage({navigation, route}) {
           <NewUserQuestionText hasValidationError={false}>Role: Field User</NewUserQuestionText>
         </ScrollView>
         <PrimaryButton onPress={handleSave} isWorking={isSaving}>Save</PrimaryButton>
-        <SecondaryButton onPress={() => navigation.goBack()}>Cancel</SecondaryButton>
+        <SecondaryButton onPress={() => navigation.goBack()} isWorking={isSaving}>Cancel</SecondaryButton>
       </View>
     </SafeAreaView>
   )
