@@ -136,7 +136,8 @@ export default function UserDetailPage({navigation, route}) {
             )}
           </View>
         </ScrollView>
-        {userDetail.status === "ENABLED" ? (
+        {userDetail.role === "ADMIN" ? (null) :
+        userDetail.status === "ENABLED" ? (
           <WarningButton onPress={handleDisableUser} isWorking={isSaving}>Disable User</WarningButton>
         ) : (
           <>

@@ -20,7 +20,7 @@ export default function UnreadMessagesWidget({navigation, unreadMessagesCount, d
   return (
     <HomeWidget 
       uniqKey={"unread-messages-widget"}
-      metric={unreadMessagesCount + ""}
+      metric={(unreadMessagesCount || 0) + ""}
       textStyle={widgetButtonTextStyle} 
       backgroundStyle={widgetBackgroundStyle} 
       onPress={() => handleServicePress()}>{getWidgetTitle()}</HomeWidget>
