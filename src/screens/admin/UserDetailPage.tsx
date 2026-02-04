@@ -1,5 +1,5 @@
 import React, { use, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Alert, Platform } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from "../../components/Header";
 import { companyService } from "../../services/backend/companyService";
@@ -27,9 +27,23 @@ export default function UserDetailPage({navigation, route}) {
   }
 
   const handleEnableUser = () => {
+    if(Platform.OS === 'web') {
+      return enableUser();
+    }
+
+    Alert.alert(
+      'Enable '+ userDetail.firstName + ' ' + userDetail.lastName + '?',
+      'The user will have access to WaitQue immediately.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Enable', style: 'destructive', onPress: () => enableUser() },
+      ]
+    );
+  }
+
+  const enableUser = () => {
     setIsSaving(true);
     companyService.updateUserStatus(userDetail.userId, true, user.role).then((response) => {
-      setIsSaving(false);
       Toast.show({
         text1: "User enabled successfully",
         type: "success",
@@ -53,9 +67,23 @@ export default function UserDetailPage({navigation, route}) {
   }
 
   const handleDisableUser = () => {
+    if(Platform.OS === 'web') {
+      return disableUser();
+    }
+
+    Alert.alert(
+      'Disable '+ userDetail.firstName + ' ' + userDetail.lastName + '?',
+      'The user will lose access to WaitQue next time they login.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Disable', style: 'destructive', onPress: () => disableUser() },
+      ]
+    );
+  }
+
+  const disableUser = () => {
     setIsSaving(true);
     companyService.updateUserStatus(userDetail.userId, false, user.role).then((response) => {
-      setIsSaving(false);
       Toast.show({
         text1: "User disabled successfully",
         type: "success",
@@ -79,9 +107,23 @@ export default function UserDetailPage({navigation, route}) {
   }
 
   const handleDeleteUser = () => {
+    if(Platform.OS === 'web') {
+      return deleteUser();
+    }
+
+    Alert.alert(
+      'Delete '+ userDetail.firstName + ' ' + userDetail.lastName + '?',
+      'The user will be PERMANENTLY deleted.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete User', style: 'destructive', onPress: () => deleteUser() },
+      ]
+    );
+  }
+
+  const deleteUser = () => {
     setIsSaving(true);
     companyService.deleteUser(userDetail.userId, user.role).then((response) => {
-      setIsSaving(false);
       Toast.show({
         text1: "User deleted successfully",
         type: "success",
@@ -96,6 +138,43 @@ export default function UserDetailPage({navigation, route}) {
       console.log("Error deleting user:", error);
       Toast.show({
         text1: "Error deleting user",
+        text2: "Please try again later",
+        type: "error",
+      });
+    }).finally(() => {
+      setIsSaving(false);
+    });
+  }
+
+  const handleResetPassword = () => {
+    if(Platform.OS === 'web') {
+      return resetPassword();
+    }
+
+    Alert.alert(
+      'Reset '+ userDetail.firstName + ' ' + userDetail.lastName + '\'s password?',
+      'The user will receive a temporary password via email.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Reset Password', style: 'destructive', onPress: () => resetPassword() },
+      ]
+    );
+  }
+
+  const resetPassword = () => {
+    setIsSaving(true);
+    companyService.resetPassword(userDetail.userId, user.role).then((response) => {
+      Toast.show({
+        text1: "User password reset successfully",
+        text2: "Check user's email",
+        type: "success",
+      });
+
+      navigation.goBack();
+    }).catch((error) => {
+      console.log("Error resetting user password:", error);
+      Toast.show({
+        text1: "Error resetting user password",
         text2: "Please try again later",
         type: "error",
       });
@@ -138,7 +217,10 @@ export default function UserDetailPage({navigation, route}) {
         </ScrollView>
         {userDetail.role === "ADMIN" ? (null) :
         userDetail.status === "ENABLED" ? (
-          <WarningButton onPress={handleDisableUser} isWorking={isSaving}>Disable User</WarningButton>
+          <>
+            <WarningButton onPress={handleResetPassword} isWorking={isSaving}>Reset Password</WarningButton>
+            <WarningButton onPress={handleDisableUser} isWorking={isSaving}>Disable User</WarningButton>
+          </>
         ) : (
           <>
             <PrimaryButton onPress={handleEnableUser} isWorking={isSaving}>Enable User</PrimaryButton>
