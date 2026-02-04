@@ -29,7 +29,7 @@ export default function FieldHomeScreen({navigation}) {
         <View style={{ flex: 1 }}>
           <View className="flex-row flex-wrap justify-center gap-4 mb-8">
             <ManageCustomerWidget navigation={navigation} />
-            <SettingsWidget navigation={navigation} />
+            <SettingsWidget navigation={navigation} onPress={() => navigation.navigate('Settings')}/>
             {(1 + 1) % 2 === 1 ? (
               <View className="w-36 h-32 rounded-xl" />
             ) : null}

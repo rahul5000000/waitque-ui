@@ -20,7 +20,7 @@ export default function ActiveLeadsWidget({navigation, activeLeadsCount, dashboa
   return (
     <HomeWidget 
       uniqKey={"active-leads-widget"}
-      metric={activeLeadsCount + ""}
+      metric={(activeLeadsCount || 0) + ""}
       textStyle={widgetButtonTextStyle} 
       backgroundStyle={widgetBackgroundStyle} 
       onPress={() => handleServicePress()}>{getWidgetTitle()}</HomeWidget>

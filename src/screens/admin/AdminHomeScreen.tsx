@@ -75,7 +75,7 @@ export default function AdminHomeScreen({navigation}) {
             <ActiveLeadsWidget navigation={navigation} activeLeadsCount={metrics?.activeLeadsCount} dashboardRefreshCallback={dashboardRefreshCallback}/>
             <UnreadMessagesWidget navigation={navigation} unreadMessagesCount={metrics?.unreadMessages} dashboardRefreshCallback={dashboardRefreshCallback}/>
             <GenerateQRCodeWidget navigation={navigation} />
-            <SettingsWidget navigation={navigation} />
+            <SettingsWidget navigation={navigation} onPress={() => navigation.navigate('AdminSettingsPage')}/>
             {(3 + 1) % 2 === 1 ? (
               <View className="w-36 h-32 rounded-xl" />
             ) : null}
