@@ -34,12 +34,53 @@ export default function LandingScreen({ navigation }) {
 
   console.log("Rendering LandingScreen: " + (productionMode ? "Production" : "Development"));
 
+  const navigateToFieldHome = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "FieldHome" }],
+    });
+  }
+
+  const navigateToAdminHome = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "AdminHome" }],
+    });
+  }
+
+  const navigateToLeadDetails = (leadId) => {
+    let leadMetadata = {id: leadId}
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "LeadDetailPage", params: {leadMetadata: leadMetadata, isDirectLoad: true} }],
+    });
+  }
+
   useEffect(() => {
     if (!isLoaded) return;              // Wait until SecureStore is loaded
 
     console.log("Auth is loaded. Mode is", mode);
 
-    if (mode === "customer") {
+    
+    if(query.leadId) {
+      if(mode === "admin") {
+        fetchUserData();
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Login as an Admin to view Lead'
+        });
+      }
+    } else if(query.messageId) {
+      if(mode === "admin") {
+        fetchUserData();
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Login as an Admin to view Message'
+        });
+      }
+    } else if (mode === "customer") {
       fetchCustomerData(customerCode);
     } else if (mode === "admin") {
       fetchUserData();
@@ -108,6 +149,32 @@ export default function LandingScreen({ navigation }) {
     }
   };
 
+  const handleAdminUserRouting = () => {
+    if(query.leadId) {
+      navigateToLeadDetails(query.leadId);
+    } else if(query.messageId) {
+
+    } else {
+      navigateToAdminHome();
+    }
+  }
+
+  const handleFieldUserRouting = () => {
+    if(query.leadId) {
+      Toast.show({
+        type: 'error',
+        text1: 'Login as an Admin to view Lead'
+      });
+    } else if(query.messageId) {
+      Toast.show({
+        type: 'error',
+        text1: 'Login as an Admin to view Message'
+      });
+    }
+
+    navigateToFieldHome();
+  }
+
   const fetchUserData = async () => {
     try {
       console.log("Fetching user data");
@@ -124,15 +191,9 @@ export default function LandingScreen({ navigation }) {
       console.log("Navigating to field home screen");
 
       if(user.role == "FIELD_USER") {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "FieldHome" }],
-        });
+        handleFieldUserRouting();
       } else if(user.role == "ADMIN") {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "AdminHome" }],
-        });
+        handleAdminUserRouting();
       } else {
         throw new Error("Unsupported user role");
       }
