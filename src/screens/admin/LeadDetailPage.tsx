@@ -19,7 +19,7 @@ import LeadDetailTextAreaFieldValue from '../../components/admin/lead-search/Lea
 export default function LeadDetailPage({ route, navigation }) {
   const {alertBackgroundStyle} = useCompanyTheme();
   const {user} = useAppContext();
-  const { leadMetadata, leadUpdatedCallback } = route.params;
+  const { leadMetadata, leadUpdatedCallback, isDirectLoad } = route.params;
   const [leadDetails, setLeadDetails] = React.useState(null);
   const [isSearching, setIsSearching] = React.useState(true);
   const [isSaving, setIsSaving] = React.useState(false);
@@ -43,11 +43,26 @@ export default function LeadDetailPage({ route, navigation }) {
     });
   }
 
-  const getFromName = (leadMetadata) => {
-    if(leadMetadata.companyName) {
-      return leadMetadata.companyName;
+  const getTitle = (leadDetails) => {
+    if(leadDetails) {
+      let title = `${leadDetails.leadFlow.name} Lead for ${getCustomerName(leadDetails)}`;
+      return title;
     }
-    return `${leadMetadata.firstName} ${leadMetadata.lastName}`;
+  }
+
+  const getHeader = (leadDetails) => {
+    if(leadDetails) {
+      let title = getCustomerName(leadDetails);
+      return title + " Details";
+    }
+  }
+
+  const getCustomerName = (leadDetails) => {
+    if(leadDetails?.crmCustomer.companyName) {
+        return leadDetails?.crmCustomer.companyName;
+      } else {
+        return `${leadDetails?.crmCustomer.firstName} ${leadDetails?.crmCustomer.lastName}`;
+      }
   }
 
   const toFriendlyCustomerType = (customerType) => {
@@ -88,14 +103,24 @@ export default function LeadDetailPage({ route, navigation }) {
   const handleStatusUpdate = (leadId, newStatus) => {
     setIsSaving(true);
     customerService.updateLeadStatus(leadId, newStatus, user.role).then((response) => {
-      console.log("Updated lead status:", response.data);
-      leadUpdatedCallback();
+      if(leadUpdatedCallback) leadUpdatedCallback();
       navigation.goBack();
     }).catch((error) => {
       console.log("Failed to update lead status:", error);
     }).finally(() => {
       setIsSaving(false);
     });
+  }
+
+  const handleGoBack = () => {
+    if(isDirectLoad) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "AdminHome" }],
+      });
+    } else {
+      navigation.goBack();
+    }
   }
   
   return (
@@ -106,8 +131,8 @@ export default function LeadDetailPage({ route, navigation }) {
               keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
             >
         <View className="pt-8 px-8">
-          <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>
-            {leadMetadata.leadFlowName} Lead for {getFromName(leadMetadata)}
+          <Header icon="arrow-back-outline" iconOnPress={handleGoBack}>
+            {getTitle(leadDetails)}
           </Header>
         </View>
         {isSearching && 
@@ -120,7 +145,7 @@ export default function LeadDetailPage({ route, navigation }) {
             <>
             <View className="mb-2 rounded-lg p-4" style={alertBackgroundStyle}>
               <View className='flex-row items-center mb-4'>
-                <Text className='font-bold text-lg'>{getFromName(leadMetadata)} Details</Text>
+                <Text className='font-bold text-lg'>{getHeader(leadDetails)}</Text>
                 <Text className='text-xs ml-1 text-gray-500'>({toFriendlyCustomerType(leadDetails.crmCustomer.customerType)})</Text>
               </View>
               <LeadDetailFieldValue label="Contact">{leadDetails.crmCustomer.firstName} {leadDetails.crmCustomer.lastName}</LeadDetailFieldValue>
