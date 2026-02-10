@@ -12,7 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 export default function MessageDetailPage({ route, navigation }) {
   const {alertBackgroundStyle} = useCompanyTheme();
   const {user} = useAppContext();
-  const { messageMetadata, messageUpdatedCallback } = route.params;
+  const { messageMetadata, messageUpdatedCallback, isDirectLoad } = route.params;
   const [messageDetails, setMessageDetails] = React.useState(null);
   const [isSearching, setIsSearching] = React.useState(true);
   const [isSaving, setIsSaving] = React.useState(false);
@@ -36,24 +36,40 @@ export default function MessageDetailPage({ route, navigation }) {
     });
   }
 
-  const getFromName = (message) => {
-    if(message.companyName) {
-      return message.companyName;
+  const getFromName = (messageDetails) => {
+    if(messageDetails) {
+      let name = '';
+      if(messageDetails.companyName) {
+        name = messageDetails.companyName;
+      } else {
+        name = `${messageDetails.firstName} ${messageDetails.lastName}`;
+      }
+
+      return name + "'s Message";
     }
-    return `${message.firstName} ${message.lastName}`;
   }
 
   const handleStatusUpdate = (messageId, newStatus) => {
     setIsSaving(true);
     customerService.updateMessageStatus(messageId, newStatus, user.role).then((response) => {
-      console.log("Updated message status:", response.data);
-      messageUpdatedCallback();
+      if(messageUpdatedCallback) messageUpdatedCallback();
       navigation.goBack();
     }).catch((error) => {
       console.log("Failed to update message status:", error);
     }).finally(() => {
       setIsSaving(false);
     });
+  }
+
+  const handleGoBack = () => {
+    if(isDirectLoad) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "AdminHome" }],
+      });
+    } else {
+      navigation.goBack();
+    }
   }
   
   return (
@@ -64,8 +80,8 @@ export default function MessageDetailPage({ route, navigation }) {
               keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
             >
         <View className="pt-8 px-8">
-          <Header icon="arrow-back-outline" iconOnPress={() => navigation.goBack()}>
-            {getFromName(messageMetadata)}'s Message
+          <Header icon="arrow-back-outline" iconOnPress={handleGoBack}>
+            {getFromName(messageDetails)}
           </Header>
         </View>
         {isSearching && 
@@ -80,10 +96,10 @@ export default function MessageDetailPage({ route, navigation }) {
                 <Ionicons name="arrow-forward-circle-outline" size={20} className='mr-2 text-gray-400'/>
                 <Text className="flex-1">{messageDetails.message}</Text>
               </View>
-              <Text className="mt-1 mb-4 mr-4 text-xs text-end">{toFriendlyDate(messageMetadata.createdDate)}</Text>
-              {messageMetadata.status === "UNREAD" && <PrimaryButton onPress={() => handleStatusUpdate(messageMetadata.id, "FOLLOW_UP")} isWorking={isSaving}>Mark for Follow Up</PrimaryButton> }
-              {(messageMetadata.status === "FOLLOW_UP" || messageMetadata.status === "UNREAD") && <PrimaryButton onPress={() => handleStatusUpdate(messageMetadata.id, "READ")} isWorking={isSaving}>Mark Read</PrimaryButton>}
-              {messageMetadata.status === "READ" && <PrimaryButton onPress={() => handleStatusUpdate(messageMetadata.id, "UNREAD")} isWorking={isSaving}>Mark Unread</PrimaryButton> }
+              <Text className="mt-1 mb-4 mr-4 text-xs text-end">{toFriendlyDate(messageDetails?.createdDate)}</Text>
+              {messageDetails?.status === "UNREAD" && <PrimaryButton onPress={() => handleStatusUpdate(messageMetadata.id, "FOLLOW_UP")} isWorking={isSaving}>Mark for Follow Up</PrimaryButton> }
+              {(messageDetails?.status === "FOLLOW_UP" || messageDetails?.status === "UNREAD") && <PrimaryButton onPress={() => handleStatusUpdate(messageMetadata.id, "READ")} isWorking={isSaving}>Mark Read</PrimaryButton>}
+              {messageDetails?.status === "READ" && <PrimaryButton onPress={() => handleStatusUpdate(messageMetadata.id, "UNREAD")} isWorking={isSaving}>Mark Unread</PrimaryButton> }
             </View>
           )}
         </ScrollView>

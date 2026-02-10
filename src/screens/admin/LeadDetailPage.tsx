@@ -43,11 +43,26 @@ export default function LeadDetailPage({ route, navigation }) {
     });
   }
 
-  const getFromName = (leadDetails) => {
-    if(leadDetails?.crmCustomer.companyName) {
-      return leadDetails?.crmCustomer.companyName;
+  const getTitle = (leadDetails) => {
+    if(leadDetails) {
+      let title = `${leadDetails.leadFlow.name} Lead for ${getCustomerName(leadDetails)}`;
+      return title;
     }
-    return `${leadDetails?.crmCustomer.firstName} ${leadDetails?.crmCustomer.lastName}`;
+  }
+
+  const getHeader = (leadDetails) => {
+    if(leadDetails) {
+      let title = getCustomerName(leadDetails);
+      return title + " Details";
+    }
+  }
+
+  const getCustomerName = (leadDetails) => {
+    if(leadDetails?.crmCustomer.companyName) {
+        return leadDetails?.crmCustomer.companyName;
+      } else {
+        return `${leadDetails?.crmCustomer.firstName} ${leadDetails?.crmCustomer.lastName}`;
+      }
   }
 
   const toFriendlyCustomerType = (customerType) => {
@@ -117,7 +132,7 @@ export default function LeadDetailPage({ route, navigation }) {
             >
         <View className="pt-8 px-8">
           <Header icon="arrow-back-outline" iconOnPress={handleGoBack}>
-            {leadDetails?.leadFlow.name} Lead for {getFromName(leadDetails)}
+            {getTitle(leadDetails)}
           </Header>
         </View>
         {isSearching && 
@@ -130,7 +145,7 @@ export default function LeadDetailPage({ route, navigation }) {
             <>
             <View className="mb-2 rounded-lg p-4" style={alertBackgroundStyle}>
               <View className='flex-row items-center mb-4'>
-                <Text className='font-bold text-lg'>{getFromName(leadDetails)} Details</Text>
+                <Text className='font-bold text-lg'>{getHeader(leadDetails)}</Text>
                 <Text className='text-xs ml-1 text-gray-500'>({toFriendlyCustomerType(leadDetails.crmCustomer.customerType)})</Text>
               </View>
               <LeadDetailFieldValue label="Contact">{leadDetails.crmCustomer.firstName} {leadDetails.crmCustomer.lastName}</LeadDetailFieldValue>

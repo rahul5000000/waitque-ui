@@ -56,6 +56,14 @@ export default function LandingScreen({ navigation }) {
     });
   }
 
+  const navigateToMessageDetails = (messageId) => {
+    let messageMetadata = {id: messageId}
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "MessageDetailPage", params: {messageMetadata: messageMetadata, isDirectLoad: true} }],
+    });
+  }
+
   useEffect(() => {
     if (!isLoaded) return;              // Wait until SecureStore is loaded
 
@@ -153,7 +161,7 @@ export default function LandingScreen({ navigation }) {
     if(query.leadId) {
       navigateToLeadDetails(query.leadId);
     } else if(query.messageId) {
-
+      navigateToMessageDetails(query.messageId);
     } else {
       navigateToAdminHome();
     }
