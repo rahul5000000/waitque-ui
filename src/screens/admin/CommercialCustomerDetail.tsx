@@ -122,6 +122,15 @@ export default function CommercialCustomerDetail({navigation, route}) {
                 <TitledText title="Phone">{formatUSPhone(customer?.phone.phoneNumber)}</TitledText>
               </View>
               : null}
+              {customer?.additionalPhones && customer?.additionalPhones.length > 0 ?
+              <View className="py-3 border-b" style={{borderColor: colors.backgroundColor}}>
+                <TitledText title="Additional Phones">
+                  {customer?.additionalPhones.map((phone, index) => (
+                    <Text key={index}>{phone.type}: {formatUSPhone(phone.phoneNumber)}</Text>
+                  ))}
+                </TitledText>
+              </View>
+              : null}
               {customer?.address ?
               <View className="py-3 border-b" style={{borderColor: colors.backgroundColor}}>
                 <TitledMultilineText title="Address">
