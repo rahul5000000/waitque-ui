@@ -150,6 +150,13 @@ export default function LeadDetailPage({ route, navigation }) {
               </View>
               <LeadDetailFieldValue label="Contact">{leadDetails.crmCustomer.firstName} {leadDetails.crmCustomer.lastName}</LeadDetailFieldValue>
               <LeadDetailFieldValue label="Phone"><TouchableOpacity onPress={() => handlePhoneNumberPress(leadDetails.crmCustomer.phoneNumber.phoneNumber)}><Text className='text-blue-500' selectable={true}>{formatUSPhone(leadDetails.crmCustomer.phoneNumber.phoneNumber)}</Text></TouchableOpacity></LeadDetailFieldValue>
+              {leadDetails.crmCustomer.additionalPhoneNumbers && leadDetails.crmCustomer.additionalPhoneNumbers.length > 0 && (
+                  leadDetails.crmCustomer.additionalPhoneNumbers.map((phone, index) => (
+                    <View>
+                    <LeadDetailFieldValue label={phone.type}><TouchableOpacity onPress={() => handlePhoneNumberPress(phone.phoneNumber)}><Text className='text-blue-500' selectable={true}>{formatUSPhone(phone.phoneNumber)}</Text></TouchableOpacity></LeadDetailFieldValue>
+                    </View>
+                  ))
+              )}
               <LeadDetailFieldValue label="Email">{leadDetails.crmCustomer.email}</LeadDetailFieldValue>
               <View className="flex">
                 <Text className="font-semibold mr-1">Address:</Text>
